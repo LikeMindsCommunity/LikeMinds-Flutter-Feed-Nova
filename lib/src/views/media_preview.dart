@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 
@@ -31,7 +30,6 @@ class _MediaPreviewState extends State<MediaPreview> {
   late Post post;
   late User user;
   late int? position;
-  bool showData = true;
 
   int currPosition = 0;
   CarouselController controller = CarouselController();
@@ -54,205 +52,138 @@ class _MediaPreviewState extends State<MediaPreview> {
   Widget build(BuildContext context) {
     final DateFormat formatter = DateFormat('MMMM d, hh:mm');
     final String formatted = formatter.format(post.createdAt);
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         centerTitle: false,
-        leading: showData
-            ? LMIconButton(
-                onTap: (active) {
-                  Navigator.of(context).pop();
-                },
-                icon: const LMIcon(
-                  type: LMIconType.icon,
-                  color: kWhiteColor,
-                  icon: CupertinoIcons.xmark,
-                  size: 28,
-                  boxSize: 64,
-                  boxPadding: 12,
-                ),
-              )
-            : const SizedBox(),
+        leading: LMIconButton(
+          onTap: (active) {
+            Navigator.of(context).pop();
+          },
+          icon: const LMIcon(
+            type: LMIconType.icon,
+            color: kWhiteColor,
+            icon: CupertinoIcons.xmark,
+            size: 28,
+            boxSize: 64,
+            boxPadding: 12,
+          ),
+        ),
         elevation: 0,
-        title: showData
-            ? Row(
-                children: [
-                  LMProfilePicture(
-                    fallbackText: user.name,
-                    imageUrl: user.imageUrl,
-                    size: 36,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            LMTextView(
+              text: user.name,
+              textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: kWhiteColor,
                   ),
-                  kHorizontalPaddingLarge,
-                  Expanded(
-                    child: LMTextView(
-                      text: user.name,
-                      textStyle:
-                          Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                overflow: TextOverflow.ellipsis,
-                                color: kWhiteColor,
-                              ),
-                    ),
-                  ),
-                ],
-              )
-            : null,
+            ),
+            ValueListenableBuilder(
+              valueListenable: rebuildCurr,
+              builder: (context, value, child) {
+                return LMTextView(
+                  text:
+                      '${currPosition + 1} of ${postAttachments.length} media • $formatted',
+                  textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 12,
+                        color: kWhiteColor,
+                      ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
-      body: GestureDetector(
-        onTap: () {
-          setState(() {
-            showData = !showData;
-          });
-        },
-        child: Container(
-          color: Colors.transparent,
-          child: SafeArea(
-            bottom: true,
-            top: false,
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: CarouselSlider.builder(
-                      options: CarouselOptions(
-                        clipBehavior: Clip.hardEdge,
-                        scrollDirection: Axis.horizontal,
-                        initialPage: position ?? 0,
-                        aspectRatio: 9 / 16,
-                        enlargeCenterPage: false,
-                        enableInfiniteScroll: false,
-                        enlargeFactor: 0.0,
-                        viewportFraction: 1.0,
-                        onPageChanged: (index, reason) {
-                          currPosition = index;
-                          rebuildCurr.value = !rebuildCurr.value;
+      body: SafeArea(
+        bottom: true,
+        top: false,
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: CarouselSlider.builder(
+                  options: CarouselOptions(
+                      clipBehavior: Clip.hardEdge,
+                      scrollDirection: Axis.horizontal,
+                      initialPage: position ?? 0,
+                      aspectRatio: 9 / 16,
+                      enlargeCenterPage: false,
+                      enableInfiniteScroll: false,
+                      enlargeFactor: 0.0,
+                      viewportFraction: 1.0,
+                      onPageChanged: (index, reason) {
+                        currPosition = index;
+                        rebuildCurr.value = !rebuildCurr.value;
+                      }),
+                  itemCount: postAttachments.length,
+                  itemBuilder: (context, index, realIndex) {
+                    if (postAttachments[index].attachmentType == 2) {
+                      return LMVideo(
+                        videoUrl: postAttachments[index].attachmentMeta.url,
+                        showControls: true,
+                      );
+                    }
+
+                    return Container(
+                      color: Colors.black,
+                      width: MediaQuery.of(context).size.width,
+                      child: ExtendedImage.network(
+                        postAttachments[index].attachmentMeta.url!,
+                        cache: true,
+                        fit: BoxFit.contain,
+                        mode: ExtendedImageMode.gesture,
+                        initGestureConfigHandler: (state) {
+                          return GestureConfig(
+                            hitTestBehavior: HitTestBehavior.opaque,
+                            minScale: 0.9,
+                            animationMinScale: 0.7,
+                            maxScale: 3.0,
+                            animationMaxScale: 3.5,
+                            speed: 1.0,
+                            inertialSpeed: 100.0,
+                            initialScale: 1.0,
+                            inPageView: true,
+                            initialAlignment: InitialAlignment.center,
+                          );
                         },
                       ),
-                      itemCount: postAttachments.length,
-                      itemBuilder: (context, index, realIndex) {
-                        if (postAttachments[index].attachmentType == 2) {
-                          return LMVideo(
-                            videoUrl: postAttachments[index].attachmentMeta.url,
-                            showControls: true,
-                          );
-                        }
-
-                        return Container(
-                          color: Colors.black,
-                          width: MediaQuery.of(context).size.width,
-                          child: ExtendedImage.network(
-                            postAttachments[index].attachmentMeta.url!,
-                            cache: true,
-                            fit: BoxFit.contain,
-                            mode: ExtendedImageMode.gesture,
-                            initGestureConfigHandler: (state) {
-                              return GestureConfig(
-                                hitTestBehavior: HitTestBehavior.opaque,
-                                minScale: 0.9,
-                                animationMinScale: 0.7,
-                                maxScale: 3.0,
-                                animationMaxScale: 3.5,
-                                speed: 1.0,
-                                inertialSpeed: 100.0,
-                                initialScale: 1.0,
-                                inPageView: true,
-                                initialAlignment: InitialAlignment.center,
-                              );
-                            },
-                          ),
-                        );
-                      }),
-                ),
-                Opacity(
-                  opacity: showData ? 1.0 : 0.0,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: <Widget>[
-                          kHorizontalPaddingLarge,
-                          LMTextButton(
-                            text: LMTextView(
-                              text: "${post.likeCount}",
-                              textStyle: theme.textTheme.labelMedium,
-                            ),
-                            margin: 0,
-                            onTap: () {},
-                            icon: LMIcon(
-                              type: LMIconType.svg,
-                              assetPath: kAssetLikeIcon,
-                              color: theme.colorScheme.onPrimary,
-                              size: 20,
-                              boxPadding: 6,
-                            ),
-                            activeIcon: LMIcon(
-                              type: LMIconType.svg,
-                              assetPath: kAssetLikeFilledIcon,
-                              color: theme.colorScheme.error,
-                              size: 20,
-                              boxPadding: 6,
-                            ),
-                            isActive: post.isLiked,
-                          ),
-                          kHorizontalPaddingLarge,
-                          LMTextButton(
-                            text: LMTextView(
-                              text: "${post.commentCount}",
-                              textStyle: theme.textTheme.labelMedium,
-                            ),
-                            margin: 0,
-                            onTap: () {},
-                            icon: LMIcon(
-                              type: LMIconType.svg,
-                              assetPath: kAssetCommentIcon,
-                              color: theme.colorScheme.onPrimary,
-                              size: 20,
-                              boxPadding: 6,
-                            ),
-                          ),
-                        ],
-                      ),
-                      kVerticalPaddingMedium,
-                      ValueListenableBuilder(
-                          valueListenable: rebuildCurr,
-                          builder: (context, _, __) {
-                            return Column(
-                              children: [
-                                checkIfMultipleAttachments()
-                                    ? kVerticalPaddingMedium
-                                    : const SizedBox(),
-                                checkIfMultipleAttachments()
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: postAttachments.map((url) {
-                                          int index =
-                                              postAttachments.indexOf(url);
-                                          return Container(
-                                            width: 8.0,
-                                            height: 8.0,
-                                            margin: const EdgeInsets.symmetric(
-                                                vertical: 7.0, horizontal: 2.0),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: currPosition == index
-                                                  ? theme.colorScheme.primary
-                                                  : theme.colorScheme.primary
-                                                      .withOpacity(0.3),
-                                            ),
-                                          );
-                                        }).toList())
-                                    : const SizedBox(),
-                              ],
-                            );
-                          }),
-                    ],
-                  ),
-                )
-              ],
+                    );
+                  }),
             ),
-          ),
+            ValueListenableBuilder(
+                valueListenable: rebuildCurr,
+                builder: (context, _, __) {
+                  return Column(
+                    children: [
+                      checkIfMultipleAttachments()
+                          ? kVerticalPaddingMedium
+                          : const SizedBox(),
+                      checkIfMultipleAttachments()
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: postAttachments!.map((url) {
+                                int index = postAttachments!.indexOf(url);
+                                return Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 7.0, horizontal: 2.0),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: currPosition == index
+                                        ? kWhiteColor
+                                        : kGrey3Color,
+                                  ),
+                                );
+                              }).toList())
+                          : const SizedBox(),
+                    ],
+                  );
+                }),
+          ],
         ),
       ),
     );
