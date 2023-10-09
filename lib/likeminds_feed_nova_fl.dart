@@ -35,6 +35,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
+  final String? imageUrl;
   final String apiKey;
   final Function(BuildContext context)? openChatCallback;
   final LMSDKCallback? callback;
@@ -46,6 +47,7 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
+    String? imageUrl,
     LMSDKCallback? callback,
     Function(BuildContext context)? openChatCallback,
     required String apiKey,
@@ -54,6 +56,7 @@ class LMFeed extends StatefulWidget {
       userId: userId,
       userName: userName,
       callback: callback,
+      imageUrl: imageUrl,
       apiKey: apiKey,
       openChatCallback: openChatCallback,
     );
@@ -77,6 +80,7 @@ class LMFeed extends StatefulWidget {
       {Key? key,
       this.userId,
       this.userName,
+      this.imageUrl,
       required this.callback,
       required this.apiKey,
       this.openChatCallback})
@@ -90,6 +94,7 @@ class _LMFeedState extends State<LMFeed> {
   User? user;
   late final String userId;
   late final String userName;
+  String? imageUrl;
   late final bool isProd;
   late final NetworkConnectivity networkConnectivity;
   ValueNotifier<bool> rebuildOnConnectivityChange = ValueNotifier<bool>(false);
@@ -107,6 +112,7 @@ class _LMFeedState extends State<LMFeed> {
             : CredsDev.botId
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
+    imageUrl = widget.imageUrl;
     firebase();
   }
 
@@ -168,7 +174,8 @@ class _LMFeedState extends State<LMFeed> {
               future: locator<LikeMindsService>().initiateUser(
                 (InitiateUserRequestBuilder()
                       ..userId(userId)
-                      ..userName(userName))
+                      ..userName(userName)
+                      ..imageUrl(imageUrl ?? ''))
                     .build(),
               ),
               initialData: null,
