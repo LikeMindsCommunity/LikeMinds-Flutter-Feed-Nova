@@ -63,6 +63,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   bool isDocumentPost = true; // flag for document or media post
   bool isMediaPost = true;
   bool isUploading = false;
+  bool isVideoAttached = false;
 
   String previewLink = '';
   MediaModel? linkModel;
@@ -122,11 +123,41 @@ class _NewPostScreenState extends State<NewPostScreen> {
   */
   void removeAttachmenetAtIndex(int index) {
     if (postMedia.isNotEmpty) {
+      MediaModel mediaToBeRemoved = postMedia[index];
+      if (mediaToBeRemoved.mediaType == MediaType.document) {
+        int docCount = 0;
+        for (var element in postMedia) {
+          if (element.mediaType == MediaType.document) {
+            docCount++;
+          }
+        }
+        LMAnalytics.get().track(
+            AnalyticsKeys.documentAttachedInPost, {'document_count': docCount});
+      } else if (mediaToBeRemoved.mediaType == MediaType.video) {
+        int videoCount = 0;
+        for (var element in postMedia) {
+          if (element.mediaType == MediaType.video) {
+            videoCount++;
+          }
+        }
+        LMAnalytics.get().track(
+            AnalyticsKeys.videoAttachedToPost, {'video_count': videoCount});
+      } else if (mediaToBeRemoved.mediaType == MediaType.image) {
+        int imageCount = 0;
+        for (var element in postMedia) {
+          if (element.mediaType == MediaType.image) {
+            imageCount++;
+          }
+        }
+        LMAnalytics.get().track(
+            AnalyticsKeys.imageAttachedToPost, {'image_count': imageCount});
+      }
       postMedia.removeAt(index);
       if (postMedia.isEmpty) {
         isDocumentPost = true;
         isMediaPost = true;
         showLinkPreview = true;
+        isVideoAttached = false;
       }
       setState(() {});
     }
@@ -139,6 +170,35 @@ class _NewPostScreenState extends State<NewPostScreen> {
       postMedia = <MediaModel>[...pickedMediaFiles];
     } else {
       postMedia.addAll(pickedMediaFiles);
+    }
+    if (pickedMediaFiles.isNotEmpty &&
+        pickedMediaFiles.first.mediaType == MediaType.document) {
+      int documentCount = 0;
+      for (var element in postMedia) {
+        if (element.mediaType == MediaType.document) {
+          documentCount++;
+        }
+      }
+      LMAnalytics.get().track(AnalyticsKeys.documentAttachedInPost,
+          {'document_count': documentCount});
+    } else {
+      int imageCount = 0;
+      if (postMedia.first.mediaType == MediaType.video) {
+        LMAnalytics.get()
+            .track(AnalyticsKeys.videoAttachedToPost, {'video_count': 1});
+        isVideoAttached = true;
+      } else {
+        int imageCount = 0;
+        for (var element in postMedia) {
+          if (element.mediaType == MediaType.image) {
+            imageCount++;
+          }
+        }
+        LMAnalytics.get().track(
+            AnalyticsKeys.imageAttachedToPost, {'image_count': imageCount});
+      }
+      LMAnalytics.get().track(
+          AnalyticsKeys.imageAttachedToPost, {'image_count': imageCount});
     }
   }
 
@@ -168,6 +228,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     } else {
       if (postMedia.isEmpty) {
         isMediaPost = true;
+        isVideoAttached = false;
         showLinkPreview = true;
       }
       setState(() {
@@ -193,6 +254,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (postMedia.isEmpty) {
         isDocumentPost = true;
         isMediaPost = true;
+        isVideoAttached = false;
         showLinkPreview = true;
       }
       setState(() {
@@ -709,6 +771,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                                                 //     300,
                                                                 borderRadius:
                                                                     18,
+                                                                autoPlay: true,
+                                                                isMute: true,
                                                               ),
                                                             ),
                                                           )
@@ -949,127 +1013,131 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
-                  child: Container(
-                    // height: 32,
-                    decoration: BoxDecoration(
-                      color: theme!.colorScheme.background,
-                    ),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Opacity(
-                          opacity: isMediaPost ? 1 : 0.5,
-                          child: LMIconButton(
-                            icon: LMIcon(
-                              type: LMIconType.svg,
-                              assetPath: kAssetGalleryIcon,
-                              color: theme!.colorScheme.primary,
-                              boxPadding: 0,
-                              size: 28,
-                            ),
-                            onTap: isMediaPost
-                                ? (active) async {
-                                    LMAnalytics.get().track(
-                                        AnalyticsKeys.clickedOnAttachment,
-                                        {'type': 'image'});
-                                    final result =
-                                        await handlePermissions(context, 1);
-                                    if (result) {
-                                      pickImages();
-                                    }
+                  child: isVideoAttached
+                      ? const SizedBox.shrink()
+                      : Container(
+                          // height: 32,
+                          decoration: BoxDecoration(
+                            color: theme!.colorScheme.background,
+                          ),
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Opacity(
+                                opacity: isMediaPost ? 1 : 0.5,
+                                child: LMIconButton(
+                                  icon: LMIcon(
+                                    type: LMIconType.svg,
+                                    assetPath: kAssetGalleryIcon,
+                                    color: theme!.colorScheme.primary,
+                                    boxPadding: 0,
+                                    size: 28,
+                                  ),
+                                  onTap: isMediaPost
+                                      ? (active) async {
+                                          LMAnalytics.get().track(
+                                              AnalyticsKeys.clickedOnAttachment,
+                                              {'type': 'image'});
+                                          final result =
+                                              await handlePermissions(
+                                                  context, 1);
+                                          if (result) {
+                                            pickImages();
+                                          }
+                                        }
+                                      : (active) {},
+                                ),
+                              ),
+                              isMediaPost && postMedia.isEmpty
+                                  ? const SizedBox(width: 16)
+                                  : const SizedBox.shrink(),
+                              isMediaPost && postMedia.isEmpty
+                                  ? LMIconButton(
+                                      icon: LMIcon(
+                                        type: LMIconType.svg,
+                                        assetPath: kAssetVideoIcon,
+                                        color: theme!.colorScheme.primary,
+                                        boxPadding: 0,
+                                        size: 28,
+                                      ),
+                                      onTap: (active) async {
+                                        onUploading();
+                                        List<MediaModel>? pickedMediaFiles =
+                                            await PostMediaPicker.pickVideos(
+                                                postMedia.length);
+                                        if (pickedMediaFiles != null) {
+                                          setPickedMediaFiles(pickedMediaFiles);
+                                          onUploadedMedia(true);
+                                        } else {
+                                          onUploadedMedia(false);
+                                        }
+                                      },
+                                    )
+                                  : const SizedBox.shrink(),
+                              const SizedBox(width: 16.0),
+                              Opacity(
+                                opacity: isDocumentPost ? 1 : 0.5,
+                                child: LMIconButton(
+                                  icon: LMIcon(
+                                    type: LMIconType.svg,
+                                    assetPath: kAssetDocPDFIcon,
+                                    color: theme!.colorScheme.primary,
+                                    boxPadding: 0,
+                                    size: 28,
+                                  ),
+                                  onTap: isDocumentPost
+                                      ? (active) async {
+                                          if (postMedia.length >= 3) {
+                                            //  TODO: Add your own toast message for document limit
+                                            return;
+                                          }
+                                          onUploading();
+                                          LMAnalytics.get().track(
+                                              AnalyticsKeys.clickedOnAttachment,
+                                              {'type': 'file'});
+                                          List<MediaModel>? pickedMediaFiles =
+                                              await PostMediaPicker
+                                                  .pickDocuments(
+                                                      postMedia.length);
+                                          if (pickedMediaFiles != null &&
+                                              pickedMediaFiles.isNotEmpty) {
+                                            setPickedMediaFiles(
+                                                pickedMediaFiles);
+                                            onUploadedDocument(true);
+                                          } else {
+                                            onUploadedDocument(false);
+                                          }
+                                        }
+                                      : (active) {},
+                                ),
+                              ),
+                              const Spacer(),
+                              LMIconButton(
+                                icon: LMIcon(
+                                  type: LMIconType.svg,
+                                  assetPath: kAssetMentionIcon,
+                                  color: theme!.colorScheme.primary,
+                                  boxPadding: 0,
+                                  size: 28,
+                                ),
+                                onTap: (active) {
+                                  if (!_focusNode.hasFocus) {
+                                    _focusNode.requestFocus();
                                   }
-                                : (active) {},
-                          ),
-                        ),
-                        // isMediaPost
-                        //     ? const SizedBox(width: 8)
-                        //     : const SizedBox.shrink(),
-                        // isMediaPost
-                        //     ? LMIconButton(
-                        //         icon: LMIcon(
-                        //           type: LMIconType.svg,
-                        //           assetPath: kAssetVideoIcon,
-                        //           color:
-                        //                theme!.of(context).colorScheme.primary,
-                        //           boxPadding: 0,
-                        //           size: 44,
-                        //         ),
-                        //         onTap: (active) async {
-                        //           onUploading();
-                        //           List<MediaModel>? pickedMediaFiles =
-                        //               await PostMediaPicker.pickVideos(
-                        //                   postMedia.length);
-                        //           if (pickedMediaFiles != null) {
-                        //             setPickedMediaFiles(pickedMediaFiles);
-                        //             onUploadedMedia(true);
-                        //           } else {
-                        //             onUploadedMedia(false);
-                        //           }
-                        //         },
-                        //       )
-                        //     : const SizedBox.shrink(),
-                        const SizedBox(width: 16.0),
-                        Opacity(
-                          opacity: isDocumentPost ? 1 : 0.5,
-                          child: LMIconButton(
-                            icon: LMIcon(
-                              type: LMIconType.svg,
-                              assetPath: kAssetDocPDFIcon,
-                              color: theme!.colorScheme.primary,
-                              boxPadding: 0,
-                              size: 28,
-                            ),
-                            onTap: isDocumentPost
-                                ? (active) async {
-                                    if (postMedia.length >= 3) {
-                                      //  TODO: Add your own toast message for document limit
-                                      return;
-                                    }
-                                    onUploading();
-                                    LMAnalytics.get().track(
-                                        AnalyticsKeys.clickedOnAttachment,
-                                        {'type': 'file'});
-                                    List<MediaModel>? pickedMediaFiles =
-                                        await PostMediaPicker.pickDocuments(
-                                            postMedia.length);
-                                    if (pickedMediaFiles != null &&
-                                        pickedMediaFiles.isNotEmpty) {
-                                      setPickedMediaFiles(pickedMediaFiles);
-                                      onUploadedDocument(true);
-                                    } else {
-                                      onUploadedDocument(false);
-                                    }
+                                  String currentText = _controller.text;
+                                  if (currentText.isNotEmpty) {
+                                    currentText = '$currentText @';
+                                  } else {
+                                    currentText = '@';
                                   }
-                                : (active) {},
+                                  _controller.value =
+                                      TextEditingValue(text: currentText);
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        const Spacer(),
-                        LMIconButton(
-                          icon: LMIcon(
-                            type: LMIconType.svg,
-                            assetPath: kAssetMentionIcon,
-                            color: theme!.colorScheme.primary,
-                            boxPadding: 0,
-                            size: 28,
-                          ),
-                          onTap: (active) {
-                            if (!_focusNode.hasFocus) {
-                              _focusNode.requestFocus();
-                            }
-                            String currentText = _controller.text;
-                            if (currentText.isNotEmpty) {
-                              currentText = '$currentText @';
-                            } else {
-                              currentText = '@';
-                            }
-                            _controller.value =
-                                TextEditingValue(text: currentText);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),

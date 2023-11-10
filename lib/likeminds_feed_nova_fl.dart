@@ -16,6 +16,7 @@ import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
+import 'package:media_kit/media_kit.dart';
 
 export 'src/services/service_locator.dart';
 export 'src/services/navigation_service.dart';
@@ -116,6 +117,7 @@ class _LMFeedState extends State<LMFeed> {
     super.initState();
     networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
+    MediaKit.ensureInitialized();
     loadSvgIntoCache();
     isProd = prodFlag;
     userId = widget.userId!.isEmpty
