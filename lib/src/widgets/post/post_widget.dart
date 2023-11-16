@@ -6,7 +6,6 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
-import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
@@ -17,7 +16,6 @@ import 'package:likeminds_feed_nova_fl/src/views/media_preview.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -141,7 +139,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     timeago.setLocaleMessages('en', SSCustomMessages());
     ThemeData theme = ColorTheme.novaTheme;
     return InheritedPostProvider(
-      post: widget.post.toPost(),
+      post: PostViewData.fromPost(post: widget.post.toPost()),
       child: Container(
         color: theme.colorScheme.background,
         child: BlocListener(
@@ -363,22 +361,24 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                               : const SizedBox());
                     },
                   ),
-                  postDetails!.text.isEmpty ? const SizedBox.shrink() : Padding(
-                    padding: const EdgeInsets.only(
-                        top:  8.0),
-                    child: LMPostContent(
-                      onTagTap: (String userId) {
-                        locator<LikeMindsService>().routeToProfile(userId);
-                      },
-                      linkStyle: theme.textTheme.bodyMedium!
-                          .copyWith(color: theme.colorScheme.primary),
-                      textStyle: theme.textTheme.bodyMedium,
-                      expandTextStyle: theme.textTheme.bodyMedium!
-                          .copyWith(color: theme.colorScheme.onPrimary),
-                      expanded: widget.expanded,
-                      expandText: widget.expanded ? '' : 'see more',
-                    ),
-                  ),
+                  postDetails!.text.isEmpty
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: LMPostContent(
+                            onTagTap: (String userId) {
+                              locator<LikeMindsService>()
+                                  .routeToProfile(userId);
+                            },
+                            linkStyle: theme.textTheme.bodyMedium!
+                                .copyWith(color: theme.colorScheme.primary),
+                            textStyle: theme.textTheme.bodyMedium,
+                            expandTextStyle: theme.textTheme.bodyMedium!
+                                .copyWith(color: theme.colorScheme.onPrimary),
+                            expanded: widget.expanded,
+                            expandText: widget.expanded ? '' : 'see more',
+                          ),
+                        ),
                   checkAttachments(postDetails!.attachments!)
                       ? SizedBox(height: postDetails!.text.isEmpty ? 8.0 : 16.0)
                       : const SizedBox(),
