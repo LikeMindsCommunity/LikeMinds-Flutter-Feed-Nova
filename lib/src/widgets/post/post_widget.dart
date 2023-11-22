@@ -15,6 +15,7 @@ import 'package:likeminds_feed_nova_fl/src/views/likes/likes_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/media_preview.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
@@ -67,6 +68,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   Attachment? linkAttachment;
+  VideoController? videoController;
 
   @override
   void initState() {
@@ -438,20 +440,28 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                           : SizedBox(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  Navigator.push(
+                                onTap: () async {
+                                  await videoController?.player.pause();
+                                  await Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) {
-                                      return MediaPreview(
-                                        postAttachments:
-                                            postDetails!.attachments!,
-                                        post: postDetails!.toPost(),
-                                        user: widget.user,
-                                      );
-                                    }),
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return MediaPreview(
+                                          postAttachments:
+                                              postDetails!.attachments!,
+                                          post: postDetails!.toPost(),
+                                          user: widget.user,
+                                        );
+                                      },
+                                    ),
                                   );
+                                  await videoController?.player.play();
                                 },
                                 child: LMPostMedia(
+                                  initialiseVideoController:
+                                      (VideoController controller) {
+                                    videoController = controller;
+                                  },
                                   attachments: postDetails!.attachments!,
                                   borderRadius: 16.0,
                                   height: screenSize.width - 32,
@@ -463,8 +473,6 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                   errorWidget: Container(
                                     color: theme.colorScheme.background,
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
