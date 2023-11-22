@@ -57,6 +57,7 @@ class _MediaPreviewState extends State<MediaPreview> {
   @override
   void initState() {
     postAttachments = widget.postAttachments;
+    postAttachments.removeWhere((element) => element.attachmentType == 5);
     post = PostViewModel.fromPost(post: widget.post);
     user = widget.user;
     position = widget.position;
@@ -68,6 +69,7 @@ class _MediaPreviewState extends State<MediaPreview> {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
     postAttachments = widget.postAttachments;
+    postAttachments.removeWhere((element) => element.attachmentType == 5);
     post = PostViewModel.fromPost(post: widget.post);
     user = widget.user;
     position = widget.position;
@@ -80,6 +82,9 @@ class _MediaPreviewState extends State<MediaPreview> {
     final ThemeData theme = ColorTheme.novaTheme;
     final Size screenSize = MediaQuery.of(context).size;
     final NewPostBloc newPostBloc = locator<BlocService>().newPostBlocProvider;
+    if (postAttachments.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
