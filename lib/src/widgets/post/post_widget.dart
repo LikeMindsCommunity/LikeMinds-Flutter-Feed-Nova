@@ -458,72 +458,59 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                   );
                                   await videoController?.player.play();
                                 },
-                                child: VisibilityDetector(
-                                  key: ObjectKey(videoController),
-                                  onVisibilityChanged: (visibilityInfo) async {
-                                    var visiblePercentage =
-                                        visibilityInfo.visibleFraction * 100;
-                                    if (visiblePercentage <= 70) {
-                                      videoController?.player.pause();
-                                    }
-                                    if (visiblePercentage > 70) {
-                                      videoController?.player.play();
-                                    }
+                                child: LMPostMedia(
+                                  initialiseVideoController:
+                                      (VideoController controller) {
+                                    videoController = controller;
                                   },
-                                  child: LMPostMedia(
-                                    initialiseVideoController:
-                                        (VideoController controller) {
-                                      videoController = controller;
-                                    },
-                                    attachments: postDetails!.attachments!,
-                                    borderRadius: 16.0,
-                                    height: screenSize.width - 32,
-                                    width: screenSize.width - 32,
-                                    boxFit: BoxFit.cover,
-                                    showLinkUrl: false,
-                                    textColor: ColorTheme
-                                        .novaTheme.colorScheme.onPrimary,
-                                    errorWidget: Container(
-                                      color: theme.colorScheme.background,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          LMIcon(
-                                            type: LMIconType.icon,
-                                            icon: Icons.error_outline,
-                                            size: 24,
-                                            color: theme
-                                                .colorScheme.onPrimaryContainer,
-                                          ),
-                                          const SizedBox(height: 24),
-                                          Text("An error occurred fetching media",
-                                              style: theme.textTheme.bodyMedium)
-                                        ],
-                                      ),
-                                    ),
-                                    backgroundColor: theme.colorScheme.surface,
-                                    showBorder: false,
-                                    carouselActiveIndicatorColor:
-                                        theme.colorScheme.primary,
-                                    carouselInactiveIndicatorColor: theme
-                                        .colorScheme.primary
-                                        .withOpacity(0.3),
-                                    documentIcon: Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: ShapeDecoration(
-                                        color: theme.colorScheme.primaryContainer,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(4)),
-                                      ),
-                                      child: Center(
-                                        child: LMTextView(
-                                          text: 'PDF',
-                                          textStyle: theme.textTheme.titleLarge!
-                                              .copyWith(fontSize: 18),
+                                  attachments: postDetails!.attachments!,
+                                  borderRadius: 16.0,
+                                  height: screenSize.width - 32,
+                                  width: screenSize.width - 32,
+                                  boxFit: BoxFit.cover,
+                                  showLinkUrl: false,
+                                  textColor: ColorTheme
+                                      .novaTheme.colorScheme.onPrimary,
+                                  errorWidget: Container(
+                                    color: theme.colorScheme.background,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        LMIcon(
+                                          type: LMIconType.icon,
+                                          icon: Icons.error_outline,
+                                          size: 24,
+                                          color: theme
+                                              .colorScheme.onPrimaryContainer,
                                         ),
+                                        const SizedBox(height: 24),
+                                        Text("An error occurred fetching media",
+                                            style: theme.textTheme.bodyMedium)
+                                      ],
+                                    ),
+                                  ),
+                                  backgroundColor: theme.colorScheme.surface,
+                                  showBorder: false,
+                                  carouselActiveIndicatorColor:
+                                      theme.colorScheme.primary,
+                                  carouselInactiveIndicatorColor: theme
+                                      .colorScheme.primary
+                                      .withOpacity(0.3),
+                                  documentIcon: Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: ShapeDecoration(
+                                      color: theme.colorScheme.primaryContainer,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4)),
+                                    ),
+                                    child: Center(
+                                      child: LMTextView(
+                                        text: 'PDF',
+                                        textStyle: theme.textTheme.titleLarge!
+                                            .copyWith(fontSize: 18),
                                       ),
                                     ),
                                   ),
