@@ -46,7 +46,8 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
             progress: progress.stream,
             thumbnailMedia: postMedia.isEmpty
                 ? null
-                : postMedia[0].mediaType == MediaType.link
+                : (postMedia[0].mediaType == MediaType.link ||
+                        postMedia[0].mediaType == MediaType.widget)
                     ? null
                     : postMedia[0],
           ),
