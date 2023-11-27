@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_no_internet_widget/flutter_no_internet_widget.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/network_handling.dart';
 
@@ -46,20 +47,23 @@ class LMFeed extends StatefulWidget {
   final Function(BuildContext context)? openChatCallback;
   final LMSDKCallback? callback;
   final Map<int, Widget>? customWidgets;
+  static bool? shareErrorLogsWithLM;
+  static Function(LMStackTrace stackTrace)? onErrorHandler;
 
   /// INIT - Get the LMFeed instance and pass the credentials (if any)
   /// to the instance. This will be used to initialize the app.
   /// If no credentials are provided, the app will run with the default
   /// credentials of Bot user in your community in `credentials.dart`
-  static LMFeed instance({
-    String? userId,
-    String? userName,
-    String? imageUrl,
-    LMSDKCallback? callback,
-    Function(BuildContext context)? openChatCallback,
-    required String apiKey,
-    Map<int, Widget>? customWidgets,
-  }) {
+  static LMFeed instance(
+      {String? userId,
+      String? userName,
+      String? imageUrl,
+      LMSDKCallback? callback,
+      Function(BuildContext context)? openChatCallback,
+      required String apiKey,
+      Map<int, Widget>? customWidgets,
+      bool shareErrorLogsWithLM = true,
+      Function(LMStackTrace stackTrace)? onErrorHandler}) {
     return LMFeed._(
       userId: userId,
       userName: userName,
@@ -75,6 +79,8 @@ class LMFeed extends StatefulWidget {
     required String apiKey,
     LMSDKCallback? lmCallBack,
     GlobalKey<NavigatorState>? navigatorKey,
+    bool shareErrorLogsWithLM = true,
+    Function(LMStackTrace stackTrace)? onErrorHandler,
   }) {
     setupLMFeed(
       lmCallBack,
@@ -135,8 +141,9 @@ class _LMFeedState extends State<LMFeed> {
     try {
       final firebase = Firebase.app();
       debugPrint("Firebase - ${firebase.options.appId}");
-    } on FirebaseException catch (e) {
-      debugPrint("Make sure you have initialized firebase, ${e.toString()}");
+    } on FirebaseException catch (err, stacktrace) {
+      debugPrint("Make sure you have initialized firebase, ${err.toString()}");
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
     }
   }
 

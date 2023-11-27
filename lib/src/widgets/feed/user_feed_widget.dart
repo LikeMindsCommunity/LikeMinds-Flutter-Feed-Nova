@@ -5,6 +5,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
@@ -18,6 +19,7 @@ import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 
 class UserFeedWidget extends StatefulWidget {
   final String userId;
+
   const UserFeedWidget({
     Key? key,
     required this.userId,
@@ -36,6 +38,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
   int _pageFeed = 1;
   final PagingController<int, PostViewModel> _pagingController =
       PagingController(firstPageKey: 1);
+
   @override
   void initState() {
     super.initState();
@@ -231,7 +234,10 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                                   "post_type": postType,
                                 });
                               }
-                            } catch (_) {}
+                            } on Exception catch (err, stacktrace) {
+                              LMFeedLogger.instance
+                                  .handleException(err.toString(), stacktrace);
+                            }
 
                             newPostBloc.add(TogglePinPost(
                                 postId: item.id, isPinned: !item.isPinned));
@@ -248,8 +254,10 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                                   "post_type": postType,
                                 },
                               );
-                            } catch (err) {
+                            } on Exception catch (err, stacktrace) {
                               debugPrint(err.toString());
+                              LMFeedLogger.instance
+                                  .handleException(err.toString(), stacktrace);
                             }
                             List<TopicUI> postTopics = [];
 

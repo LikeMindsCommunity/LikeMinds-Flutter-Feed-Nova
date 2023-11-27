@@ -11,6 +11,7 @@ import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/simple_bloc_observer.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/universal_feed/universal_feed_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
@@ -985,7 +986,10 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                             "post_type": postType,
                                           });
                                         }
-                                      } catch (_) {}
+                                      } on Exception catch (err, stacktrace) {
+                                        LMFeedLogger.instance.handleException(
+                                            err.toString(), stacktrace);
+                                      }
                                       newPostBloc.add(TogglePinPost(
                                           postId: item.id,
                                           isPinned: !item.isPinned));
@@ -1003,8 +1007,10 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                             "post_type": postType,
                                           },
                                         );
-                                      } catch (err) {
+                                      } on Exception catch (err, stacktrace) {
                                         debugPrint(err.toString());
+                                        LMFeedLogger.instance.handleException(
+                                            err.toString(), stacktrace);
                                       }
                                       List<TopicUI> postTopics = [];
 

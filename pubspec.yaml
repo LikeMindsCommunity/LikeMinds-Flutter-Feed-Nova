@@ -53,6 +53,7 @@ dependencies:
 
   likeminds_feed: 1.6.3
    # path: ../LikeMinds-Flutter-Feed-SDK
+  realm: ^1.6.0
 
 dev_dependencies:
   flutter_test:

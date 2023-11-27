@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
@@ -14,6 +15,7 @@ import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 part 'new_post_event.dart';
+
 part 'new_post_state.dart';
 
 class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
@@ -167,8 +169,9 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       } else {
         emit(NewPostError(message: response.errorMessage!));
       }
-    } catch (err) {
+    } on Exception catch (err, stacktrace) {
       emit(const NewPostError(message: 'An error occurred'));
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
       debugPrint(err.toString());
     }
   }
@@ -202,12 +205,13 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           ),
         );
       }
-    } catch (err) {
+    } on Exception catch (err, stacktrace) {
       emit(
         const NewPostError(
           message: 'An error occurred while saving the post',
         ),
       );
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
     }
   }
 

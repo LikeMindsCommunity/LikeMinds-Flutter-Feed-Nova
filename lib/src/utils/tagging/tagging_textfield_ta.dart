@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/packages/flutter_typeahead-4.3.7/lib/flutter_typeahead.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
@@ -107,7 +108,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       } else {
         return const Iterable.empty();
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
       return const Iterable.empty();
     }
   }

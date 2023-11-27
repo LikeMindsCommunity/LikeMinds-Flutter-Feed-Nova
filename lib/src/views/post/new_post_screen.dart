@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_media_picker.dart';
@@ -1269,13 +1270,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
         onUploadedMedia(false);
         return;
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
       onUploadedMedia(false);
-      print(e.toString());
+      print(err.toString());
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
       return;
     }
   }

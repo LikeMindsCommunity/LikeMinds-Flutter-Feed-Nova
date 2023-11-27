@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
 import 'package:path/path.dart';
 
@@ -29,9 +30,13 @@ class MediaService {
         s3FolderPath: "files/post/$userUniqueId/$fileName-$currTimeInMilli",
       );
       return result;
-    } on SimpleS3Errors catch (e) {
-      debugPrint(e.name);
-      debugPrint(e.index.toString());
+    } on SimpleS3Errors catch (err, stacktrace) {
+      debugPrint(err.name);
+      debugPrint(err.index.toString());
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+      return null;
+    } on Exception catch (err, stacktrace) {
+      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
       return null;
     }
   }

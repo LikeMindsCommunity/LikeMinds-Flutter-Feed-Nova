@@ -12,6 +12,7 @@ import 'package:likeminds_feed_nova_fl/src/blocs/comment/comment_replies/comment
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
@@ -953,8 +954,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                         "post_type": postType,
                                                       });
                                                 }
-                                              } catch (err) {
+                                              } on Exception catch (err, stacktrace) {
                                                 debugPrint(err.toString());
+                                                LMFeedLogger.instance
+                                                    .handleException(
+                                                        err.toString(),
+                                                        stacktrace);
                                               }
                                               newPostBloc.add(TogglePinPost(
                                                   postId: postData!.id,
@@ -977,8 +982,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                     "post_type": postType,
                                                   },
                                                 );
-                                              } catch (err) {
+                                              } on Exception catch (err, stacktrace) {
                                                 debugPrint(err.toString());
+                                                LMFeedLogger.instance
+                                                    .handleException(
+                                                        err.toString(),
+                                                        stacktrace);
                                               }
                                               List<TopicUI> postTopics = [];
 

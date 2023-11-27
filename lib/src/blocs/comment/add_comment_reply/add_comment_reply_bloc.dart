@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
@@ -100,12 +101,13 @@ class AddCommentReplyBloc
             );
             emit(CommentDeleteError());
           }
-        } catch (err) {
+        } on Exception catch (err, stacktrace) {
           toast(
-            'An error occcurred while deleting comment',
+            'An error occurred while deleting comment',
             duration: Toast.LENGTH_LONG,
           );
           emit(CommentDeleteError());
+          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
         }
       },
     );
@@ -138,11 +140,12 @@ class AddCommentReplyBloc
             );
             emit(CommentDeleteError());
           }
-        } catch (err) {
+        } on Exception catch (err, stacktrace) {
           toast(
             'An error occcurred while deleting reply',
             duration: Toast.LENGTH_LONG,
           );
+          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
           emit(CommentDeleteError());
         }
       },
