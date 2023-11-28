@@ -187,8 +187,6 @@ class _CredScreenState extends State<CredScreen> {
                 lmFeed = LMFeed.instance(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
-                    callback: LikeMindsCallback(),
-                    apiKey: "",
                     customWidgets: customWidgets(screenSize));
 
                 MaterialPageRoute route = MaterialPageRoute(

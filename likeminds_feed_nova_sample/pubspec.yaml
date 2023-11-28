@@ -43,9 +43,7 @@ dependencies:
   share_plus: 
   shared_preferences: 
   overlay_support:
-  flutter_bloc: 
-  likeminds_feed: 1.6.3
-   # path: ../../LikeMinds-Flutter-Feed-SDK
+  flutter_bloc:
 
 
   # The following adds the Cupertino Icons font to your application.

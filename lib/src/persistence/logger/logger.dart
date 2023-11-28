@@ -7,13 +7,25 @@ import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/persistence/logger/handler/handler.dart';
 import 'package:likeminds_feed_nova_fl/src/persistence/logger/models/insert_log_request.dart';
 import 'package:likeminds_feed_nova_fl/src/persistence/logger/schema/log_db.dart';
-import 'package:likeminds_feed_nova_fl/src/utils/network_handling.dart';
-import 'package:realm/realm.dart';
+import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/constants/package_constants.dart';
+import 'package:realm/realm.dart' as realm;
 
+// This class handles all the operations
+// related to Error Logging
+// Accepts a [shareLogsWithLM] boolean as parameter
+// which determines whether the logs should be stored in LocalDB
+// and shared with LM later or not
+// Calls the errorHandler method for client if it is not null
 class LMFeedLogger {
-  late final Realm realm;
+  // LogDBHandler instance to handle DB operations
   late final LogDBHandler logDBHandler;
+  // shareLogsWithLM is a boolean value which determines whether the logs
+  // should be stored in LocalDB and shared with LM or not
   late final bool shareLogsWithLM;
+  // LMSDKMeta instance to store the SDK meta data
+  // [sampleAppVersion], [middlewareVersion], [uiVersion]
+  late final LMSDKMeta lmSDKMeta;
 
   LMFeedLogger._internal();
 
@@ -21,38 +33,52 @@ class LMFeedLogger {
 
   static LMFeedLogger get instance => _instance ??= LMFeedLogger._internal();
 
+  // Creates a new realm instance with all the neccessary schemas
+  // and initialises the logDBHandler
+  // shareLogsWithLM is a boolean value which determines whether the logs
+  // should be shared with LM or not
+  // Must be called only once per app lifecycle
   void initialise({bool shareLogsWithLM = true}) {
     this.shareLogsWithLM = shareLogsWithLM;
-    realm = Realm(Configuration.local([LogDBModel.schema]));
-    logDBHandler = LogDBHandler(realm: realm);
+    logDBHandler = LogDBHandler(
+        config: realm.Configuration.local([
+      StackTraceDBModel.schema,
+      SDKMetaDBModel.schema,
+      LogDBModel.schema
+    ]));
+    lmSDKMeta = LMSDKMeta(
+      sampleAppVersion: sampleAppVersion,
+      middlewareVersion: middlewareVersion,
+    );
   }
 
-  void openLogger() {
-    realm = Realm(Configuration.local([LogDBModel.schema]));
-  }
-
-  void closeLogger() {
-    realm.close();
-  }
-
+  // Creates a InsertLogRequest object and calls insertLog method
+  // of LogDBHandler
   void insertLogs(LMStackTrace stackTrace, Severity severity) {
     int currentTimestamp = DateTime.now().millisecondsSinceEpoch;
     InsertLogRequest insertLogRequest = (InsertLogRequestBuilder()
           ..stackTrace(stackTrace)
+          ..sdkMeta(lmSDKMeta)
           ..severity(severity.toString())
           ..timestamp(currentTimestamp))
         .build();
-
+    // insert the log in DB
     logDBHandler.insertLog(insertLogRequest);
   }
 
+  // Gets all the logs from the database
+  // Maps the list of logs with DeviceDetails
+  // Creates a PushLogRequest object and calls pushLogs method
+  // If the response is success, then deletes the logs from the database
+  // upto the current timestamp
   Future<PushLogResponse> pushLogs() async {
     int currentTimeStamp = DateTime.now().millisecondsSinceEpoch;
-    var response;
+    PushLogResponse response;
 
-    List<LogDBModel> logsList = logDBHandler.getLogs(currentTimeStamp);
+    List<LMLogBuilder> lmLogsBuilderList =
+        logDBHandler.getLogs(currentTimeStamp);
 
-    if (logsList.isEmpty) {
+    if (lmLogsBuilderList.isEmpty) {
       return PushLogResponse(success: true);
     }
 
@@ -78,69 +104,68 @@ class LMFeedLogger {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
       deviceDetailsBuilder
-        ..os(androidDeviceInfo.version.sdkInt.toString())
+        ..os('android')
         ..versionOS(androidDeviceInfo.version.release)
         ..deviceName(androidDeviceInfo.model)
+        ..screenHeight(androidDeviceInfo.displayMetrics.heightPx.toInt())
+        ..screenWidth(androidDeviceInfo.displayMetrics.widthPx.toInt())
         ..wifi(isOnWifi);
     } else if (Platform.isIOS) {
       IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
       deviceDetailsBuilder
-        ..os(iosDeviceInfo.systemName)
+        ..os('ios')
         ..versionOS(iosDeviceInfo.systemVersion)
         ..deviceName(iosDeviceInfo.name)
         ..wifi(isOnWifi);
     }
 
-    DeviceDetails deviceDetails = deviceDetailsBuilder.build();
+    DeviceDetails deviceMeta = deviceDetailsBuilder.build();
 
-    // Converting LogDBModel to LMLog while
-    // Mapping LMLog list with Device Details
-    List<LMLog> lmLogList = logsList.map((e) {
-      LMStackTrace stackTrace = (LMStackTraceBuilder()
-            ..error(e.stackTrace?.exception ?? "")
-            ..stack(e.stackTrace?.trace ?? ""))
-          .build();
-
-      LMSDKMeta sdkMeta = (LMSDKMetaBuilder()
-            ..middlewareVersion(e.sdkMeta?.middlewareVersion ?? "")
-            ..sampleAppVersion(e.sdkMeta?.sampleAppVersion ?? "")
-            ..uiVersion(e.sdkMeta?.uiVersion ?? ""))
-          .build();
-
-      return LMLog(
-          timestamp: e.timestamp,
-          deviceDetails: deviceDetails,
-          stackTrace: stackTrace,
-          sdkMeta: sdkMeta);
+    // Mapping LMLogBuilder list with Device Details
+    // Creating LMLog list by calling build method
+    List<LMLog> lmLogList = lmLogsBuilderList.map((e) {
+      LMLog lmLog = (e..deviceMeta(deviceMeta)).build();
+      return lmLog;
     }).toList();
 
     PushLogRequest pushLogRequest =
         (PushLogRequestBuilder()..logs(lmLogList)).build();
 
-    response = locator<LMFeedClient>().pushLogs(pushLogRequest);
+    await locator<LikeMindsService>().initiateUser((InitiateUserRequestBuilder()
+          ..userId("anurag123")
+          ..userName("Anurag Tyagi"))
+        .build());
 
+    response = await locator<LikeMindsService>().pushLogs(pushLogRequest);
+
+    // Clear logs from DB if response is success
     if (response.success) {
-      deleteLogs(logsList);
+      deleteLogs(lmLogList);
     }
 
     return response;
   }
 
-  Future handleException(String error, StackTrace stackTrace) async {
+  // Handles the exception
+  // Calls the errorHandler method for client if it is not null
+  // If shareLogsWithLM is true, then calls insertLogs method
+  void handleException(String exception, StackTrace stackTrace) {
     LMStackTrace lmStackTrace = (LMStackTraceBuilder()
           ..stack(stackTrace.toString())
-          ..error(error))
+          ..exception(exception))
         .build();
     if (shareLogsWithLM) {
       insertLogs(lmStackTrace, Severity.ERROR);
     }
-    // TODO: Call error handling callback for client
+    // Call error handling callback for client
     if (LMFeed.onErrorHandler != null) {
       LMFeed.onErrorHandler!(lmStackTrace);
     }
   }
 
-  void deleteLogs(List<LogDBModel> logsList) {
-    realm.deleteMany(logsList);
+  // Deletes a list of logs from the database
+  // Wrapper function for LogDBHandler
+  void deleteLogs(List<LMLog> lmLogsList) {
+    logDBHandler.deleteLogs(lmLogsList);
   }
 }

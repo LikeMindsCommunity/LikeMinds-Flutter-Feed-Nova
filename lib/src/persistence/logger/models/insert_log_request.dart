@@ -1,5 +1,10 @@
 import 'package:likeminds_feed/likeminds_feed.dart';
 
+// Used to insert logs in the DB
+// Accepts a [LMStackTrace] object as parameter
+// [sdkMeta] is optional
+// [severity] is optional
+// [timestamp] is required and must be unique
 class InsertLogRequest {
   final LMStackTrace stackTrace;
   final LMSDKMeta? sdkMeta;
@@ -14,6 +19,11 @@ class InsertLogRequest {
   });
 }
 
+// Builder class for InsertLogRequest
+// Accepts a [LMStackTrace] object as parameter
+// [sdkMeta] is optional
+// [severity] is optional
+// [timestamp] is required and must be unique
 class InsertLogRequestBuilder {
   LMStackTrace? _stackTrace;
   LMSDKMeta? _sdkMeta;

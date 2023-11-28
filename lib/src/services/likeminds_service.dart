@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/media_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
@@ -93,6 +95,8 @@ abstract class ILikeMindsService {
   Future<GetProfileResponse> getProfile(GetProfileRequest request);
 
   Future<EditProfileResponse> editProfile(EditProfileRequest request);
+
+  Future<PushLogResponse> pushLogs(PushLogRequest request);
 
   void routeToProfile(String userId);
 
@@ -345,6 +349,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<EditProfileResponse> editProfile(EditProfileRequest request) {
     return _sdkApplication.editProfile(request);
+  }
+
+  @override
+  Future<PushLogResponse> pushLogs(PushLogRequest request) {
+    return _sdkApplication.pushLogs(request);
   }
 
   @override

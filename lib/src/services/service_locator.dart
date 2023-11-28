@@ -6,6 +6,7 @@ import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/navigation_service.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/constants/package_constants.dart';
 
 final GetIt locator = GetIt.I;
 
@@ -36,9 +37,9 @@ void _setupLocator(
     logger.initialise(shareLogsWithLM: shareLogsWithLM);
     locator.registerSingleton(logger);
 
-    locator.registerSingleton(LMSDKMeta(
-      sampleAppVersion: "0.8.2",
-    ));
+    if (LMFeed.shareErrorLogsWithLM!) {
+      LMFeedLogger.instance.pushLogs();
+    }
   }
 }
 
