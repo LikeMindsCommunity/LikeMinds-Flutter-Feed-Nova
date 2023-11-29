@@ -1,6 +1,6 @@
 name: likeminds_feed_nova_fl
 description: A new Flutter package project.
-version: 0.8.2
+version: 0.8.3
 publish_to: none
 homepage: "https://likeminds.community/"
 
@@ -52,9 +52,8 @@ dependencies:
   likeminds_feed_ui_fl:
     path: ../LikeMinds-Flutter-Feed-UI
 
-  likeminds_feed: 1.6.3
-   # path: ../LikeMinds-Flutter-Feed-SDK
-  realm: ^1.6.0
+  likeminds_feed: 1.6.4
+  # path: ../LikeMinds-Flutter-Feed-SDK
 
 dev_dependencies:
   flutter_test:
