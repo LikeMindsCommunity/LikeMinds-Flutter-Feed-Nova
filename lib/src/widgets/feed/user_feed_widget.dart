@@ -4,8 +4,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
@@ -174,7 +173,6 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                       const SizedBox(height: 2),
                       NovaPostWidget(
                         post: item,
-                        showMenu: true,
                         topics: topics,
                         showCompanyDetails: false,
                         widgets: widgets,
@@ -236,7 +234,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                               }
                             } on Exception catch (err, stacktrace) {
                               LMFeedLogger.instance
-                                  .handleException(err.toString(), stacktrace);
+                                  .handleException(err, stacktrace);
                             }
 
                             newPostBloc.add(TogglePinPost(
@@ -257,7 +255,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                             } on Exception catch (err, stacktrace) {
                               debugPrint(err.toString());
                               LMFeedLogger.instance
-                                  .handleException(err.toString(), stacktrace);
+                                  .handleException(err, stacktrace);
                             }
                             List<TopicUI> postTopics = [];
 

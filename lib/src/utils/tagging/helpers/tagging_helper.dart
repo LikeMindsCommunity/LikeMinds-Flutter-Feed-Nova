@@ -3,7 +3,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 
@@ -223,7 +222,7 @@ String getFirstValidLinkFromString(String text) {
     }
     return validLink;
   } on Exception catch (err, stacktrace) {
-    LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+    LMFeedLogger.instance.handleException(err, stacktrace);
     return '';
   }
 }

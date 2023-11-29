@@ -2,7 +2,7 @@ name: likeminds_feed_nova_sample
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.8.2
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
+  sdk: ">=3.1.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,20 +31,24 @@ dependencies:
   flutter:
     sdk: flutter
 
-  likeminds_feed_nova_fl: 
+  likeminds_feed_nova_fl:
     path: ../
 
- 
-  device_info_plus: 
-  firebase_core: 
-  firebase_messaging: 
-  connectivity_plus: 
-  uni_links: 
-  share_plus: 
-  shared_preferences: 
+  likeminds_feed_ui_fl:
+    path: ../../LikeMinds-Flutter-Feed-UI
+
+  device_info_plus:
+  firebase_core:
+  firebase_messaging:
+  connectivity_plus:
+  uni_links:
+  share_plus:
+  shared_preferences:
   overlay_support:
   flutter_bloc:
 
+  likeminds_feed: #1.6.3
+    path: ../../LikeMinds-Flutter-Feed-SDK
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -73,7 +77,6 @@ flutter_launcher_icons:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

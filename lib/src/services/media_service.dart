@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
 import 'package:path/path.dart';
 
@@ -33,10 +33,10 @@ class MediaService {
     } on SimpleS3Errors catch (err, stacktrace) {
       debugPrint(err.name);
       debugPrint(err.index.toString());
-      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+      LMFeedLogger.instance.handleException(Exception(err.name), stacktrace);
       return null;
     } on Exception catch (err, stacktrace) {
-      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return null;
     }
   }

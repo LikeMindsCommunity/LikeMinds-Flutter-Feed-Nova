@@ -192,7 +192,7 @@ class _CredScreenState extends State<CredScreen> {
                 MaterialPageRoute route = MaterialPageRoute(
                   builder: (context) => TabApp(feedWidget: lmFeed!),
                 );
-                Navigator.of(context).pushReplacement(route);
+                Navigator.of(context).push(route);
               },
               child: Container(
                 width: 200,

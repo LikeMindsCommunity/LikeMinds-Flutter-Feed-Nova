@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
@@ -390,12 +390,10 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                           ? LMLinkPreview(
                               attachment: linkAttachment,
                               backgroundColor: theme.colorScheme.surface,
-                              showLinkUrl: false,
                               errorWidget: Container(
                                 color: theme.colorScheme.surface,
                                 width: double.infinity,
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     LMIcon(
@@ -468,7 +466,6 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                   height: screenSize.width - 32,
                                   width: screenSize.width - 32,
                                   boxFit: BoxFit.cover,
-                                  showLinkUrl: false,
                                   textColor: ColorTheme
                                       .novaTheme.colorScheme.onPrimary,
                                   errorWidget: Container(
@@ -520,7 +517,6 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                       : const SizedBox(),
                   kVerticalPaddingLarge,
                   LMPostFooter(
-                    alignment: LMAlignment.left,
                     children: [
                       ValueListenableBuilder(
                           valueListenable: rebuildLikeWidget,

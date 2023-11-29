@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_media_picker.dart';
@@ -568,7 +567,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               LMProfilePicture(
@@ -581,7 +579,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                         user.sdkClientInfo!.userUniqueId);
                                   }
                                 },
-                                size: 48,
                                 boxShape: BoxShape.circle,
                               ),
                               kHorizontalPaddingLarge,
@@ -649,7 +646,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                         linkModel: linkModel,
                                         backgroundColor:
                                             theme!.colorScheme.surface,
-                                        showLinkUrl: false,
                                         onTap: () {
                                           launchUrl(
                                             Uri.parse(
@@ -1023,7 +1019,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           ),
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Opacity(
                                 opacity: isMediaPost ? 1 : 0.5,
@@ -1277,7 +1272,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       );
       onUploadedMedia(false);
       print(err.toString());
-      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return;
     }
   }

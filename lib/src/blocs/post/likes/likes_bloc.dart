@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 
@@ -41,7 +40,7 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
           emit(
             const LikesError(message: "An error occurred"),
           );
-          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+          LMFeedLogger.instance.handleException(err, stacktrace);
         }
       } else if (event is GetCommentLikes) {
         // Implement pagination for GetCommentLikes
@@ -73,7 +72,7 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
           emit(
             const LikesError(message: "An error occurred"),
           );
-          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+          LMFeedLogger.instance.handleException(err, stacktrace);
         }
       }
     });

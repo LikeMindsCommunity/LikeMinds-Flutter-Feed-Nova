@@ -11,14 +11,10 @@ import 'package:likeminds_feed_nova_fl/src/blocs/comment/all_comments/all_commen
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/comment_replies/comment_replies_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
-import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
-import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
-import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/tagging/tagging_textfield_ta.dart';
@@ -917,8 +913,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                             DeletePost(
                                                               postId:
                                                                   postData!.id,
-                                                              reason: reason ??
-                                                                  'Self Post',
+                                                              reason: reason,
                                                             ),
                                                           );
                                                           Navigator.of(context)
@@ -958,8 +953,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                 debugPrint(err.toString());
                                                 LMFeedLogger.instance
                                                     .handleException(
-                                                        err.toString(),
-                                                        stacktrace);
+                                                        err, stacktrace);
                                               }
                                               newPostBloc.add(TogglePinPost(
                                                   postId: postData!.id,
@@ -986,8 +980,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                 debugPrint(err.toString());
                                                 LMFeedLogger.instance
                                                     .handleException(
-                                                        err.toString(),
-                                                        stacktrace);
+                                                        err, stacktrace);
                                               }
                                               List<TopicUI> postTopics = [];
 

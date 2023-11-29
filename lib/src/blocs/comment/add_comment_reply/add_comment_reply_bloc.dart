@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
@@ -107,7 +106,7 @@ class AddCommentReplyBloc
             duration: Toast.LENGTH_LONG,
           );
           emit(CommentDeleteError());
-          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+          LMFeedLogger.instance.handleException(err, stacktrace);
         }
       },
     );
@@ -145,7 +144,7 @@ class AddCommentReplyBloc
             'An error occcurred while deleting reply',
             duration: Toast.LENGTH_LONG,
           );
-          LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+          LMFeedLogger.instance.handleException(err, stacktrace);
           emit(CommentDeleteError());
         }
       },

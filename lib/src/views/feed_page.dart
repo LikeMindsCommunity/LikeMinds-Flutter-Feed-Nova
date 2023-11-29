@@ -5,14 +5,11 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/universal_feed/universal_feed_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
-import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post/edit_post_screen.dart';
-import 'package:likeminds_feed_nova_fl/src/views/post/new_post_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/report_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/widgets/delete_dialog.dart';
@@ -38,14 +35,6 @@ class _FeedScreenState extends State<FeedScreen> {
       PagingController(
     firstPageKey: 1,
   );
-
-  void _scrollToTop() {
-    scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-    );
-  }
 
   @override
   void initState() {
@@ -130,7 +119,6 @@ class _FeedScreenState extends State<FeedScreen> {
         centerTitle: false,
         title: LMTextView(
           text: "Feed",
-          textAlign: TextAlign.start,
           textStyle: ColorTheme.novaTheme.textTheme.titleLarge!.copyWith(
             color: Colors.black,
             fontSize: 28,
@@ -265,7 +253,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                           newPostBloc.add(
                                             DeletePost(
                                               postId: item.id,
-                                              reason: reason ?? 'Self Post',
+                                              reason: reason,
                                             ),
                                           );
                                         },
@@ -292,8 +280,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                   });
                                 }
                               } on Exception catch (err, stacktrace) {
-                                LMFeedLogger.instance.handleException(
-                                    err.toString(), stacktrace);
+                                LMFeedLogger.instance
+                                    .handleException(err, stacktrace);
                               }
 
                               newPostBloc.add(TogglePinPost(
@@ -314,8 +302,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                 );
                               } on Exception catch (err, stacktrace) {
                                 debugPrint(err.toString());
-                                LMFeedLogger.instance.handleException(
-                                    err.toString(), stacktrace);
+                                LMFeedLogger.instance
+                                    .handleException(err, stacktrace);
                               }
                               List<TopicUI> postTopics = [];
 
@@ -402,7 +390,6 @@ class _FeedScreenState extends State<FeedScreen> {
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Wrap(
-        direction: Axis.horizontal,
         children: [
           // Container(
           //   height: 25,
@@ -437,7 +424,6 @@ class _FeedScreenState extends State<FeedScreen> {
             height: 56,
             width: 140,
             borderRadius: 28,
-            placement: LMIconPlacement.start,
             backgroundColor: ColorTheme.novaTheme.colorScheme.primary,
             text: LMTextView(
               text: "New Post",
