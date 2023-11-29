@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_sample/credentials/credentials.dart';
 import 'package:likeminds_feed_nova_sample/dummy_custom_widget/custom_widget.dart';
@@ -52,6 +53,7 @@ class _CredScreenState extends State<CredScreen> {
   LMFeed? lmFeed;
   String? userId;
   StreamSubscription? _streamSubscription;
+  late final AppLifecycleListener _listener;
 
   @override
   void initState() {
@@ -61,6 +63,12 @@ class _CredScreenState extends State<CredScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       initUniLinks(context);
     });
+    // Shares logs with LM on App Kill
+    _listener = AppLifecycleListener(
+      onDetach: () {
+        LMFeedLogger.instance.flushLogs();
+      },
+    );
   }
 
   @override
@@ -187,14 +195,12 @@ class _CredScreenState extends State<CredScreen> {
                 lmFeed = LMFeed.instance(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
-                    callback: LikeMindsCallback(),
-                    apiKey: "",
                     customWidgets: customWidgets(screenSize));
 
                 MaterialPageRoute route = MaterialPageRoute(
                   builder: (context) => TabApp(feedWidget: lmFeed!),
                 );
-                Navigator.of(context).pushReplacement(route);
+                Navigator.of(context).push(route);
               },
               child: Container(
                 width: 200,

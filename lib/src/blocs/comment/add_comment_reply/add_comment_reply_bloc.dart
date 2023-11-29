@@ -100,12 +100,13 @@ class AddCommentReplyBloc
             );
             emit(CommentDeleteError());
           }
-        } catch (err) {
+        } on Exception catch (err, stacktrace) {
           toast(
-            'An error occcurred while deleting comment',
+            'An error occurred while deleting comment',
             duration: Toast.LENGTH_LONG,
           );
           emit(CommentDeleteError());
+          LMFeedLogger.instance.handleException(err, stacktrace);
         }
       },
     );
@@ -138,11 +139,12 @@ class AddCommentReplyBloc
             );
             emit(CommentDeleteError());
           }
-        } catch (err) {
+        } on Exception catch (err, stacktrace) {
           toast(
             'An error occcurred while deleting reply',
             duration: Toast.LENGTH_LONG,
           );
+          LMFeedLogger.instance.handleException(err, stacktrace);
           emit(CommentDeleteError());
         }
       },

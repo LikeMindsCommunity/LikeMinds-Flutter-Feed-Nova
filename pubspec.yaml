@@ -1,6 +1,6 @@
 name: likeminds_feed_nova_fl
 description: A new Flutter package project.
-version: 0.8.2
+version: 0.8.3
 publish_to: none
 homepage: "https://likeminds.community/"
 
@@ -38,9 +38,10 @@ dependencies:
   extended_image: 8.1.1
   http:
   uni_links:
-  media_kit: ^1.1.7                              # Primary package.
-  media_kit_video: ^1.1.8                        # For video rendering.
+  media_kit: ^1.1.7 # Primary package.
+  media_kit_video: ^1.1.8 # For video rendering.
   media_kit_libs_video: ^1.0.1
+  realm: ^1.6.0
 
   flutter_typeahead_mm:
     path: lib/packages/flutter_typeahead-4.3.7
@@ -51,8 +52,8 @@ dependencies:
   likeminds_feed_ui_fl:
     path: ../LikeMinds-Flutter-Feed-UI
 
-  likeminds_feed: 1.6.3
-   # path: ../LikeMinds-Flutter-Feed-SDK
+  likeminds_feed: 1.6.5
+  # path: ../LikeMinds-Flutter-Feed-SDK
 
 dev_dependencies:
   flutter_test:

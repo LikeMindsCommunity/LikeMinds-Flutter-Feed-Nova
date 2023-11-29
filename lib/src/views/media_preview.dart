@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
@@ -107,8 +107,6 @@ class _MediaPreviewState extends State<MediaPreview> {
         elevation: 0,
         title: showData
             ? Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   LMProfilePicture(
                     fallbackText: user.name,
@@ -158,7 +156,6 @@ class _MediaPreviewState extends State<MediaPreview> {
         child: Container(
           color: Colors.transparent,
           child: SafeArea(
-            bottom: true,
             top: false,
             child: Column(
               children: <Widget>[
@@ -167,11 +164,8 @@ class _MediaPreviewState extends State<MediaPreview> {
                     children: [
                       CarouselSlider.builder(
                           options: CarouselOptions(
-                            clipBehavior: Clip.hardEdge,
-                            scrollDirection: Axis.horizontal,
                             initialPage: position ?? 0,
                             aspectRatio: 9 / 16,
-                            enlargeCenterPage: false,
                             enableInfiniteScroll: false,
                             enlargeFactor: 0.0,
                             viewportFraction: 1.0,
@@ -198,7 +192,6 @@ class _MediaPreviewState extends State<MediaPreview> {
                               width: MediaQuery.of(context).size.width,
                               child: ExtendedImage.network(
                                 postAttachments[index].attachmentMeta.url!,
-                                cache: true,
                                 fit: BoxFit.contain,
                                 mode: ExtendedImageMode.gesture,
                                 initGestureConfigHandler: (state) {
@@ -208,11 +201,7 @@ class _MediaPreviewState extends State<MediaPreview> {
                                     animationMinScale: 0.7,
                                     maxScale: 3.0,
                                     animationMaxScale: 3.5,
-                                    speed: 1.0,
-                                    inertialSpeed: 100.0,
-                                    initialScale: 1.0,
                                     inPageView: true,
-                                    initialAlignment: InitialAlignment.center,
                                   );
                                 },
                               ),
@@ -251,7 +240,6 @@ class _MediaPreviewState extends State<MediaPreview> {
                                   child: ExpandableText(
                                     widget.post.text,
                                     expandText: '',
-                                    maxLines: 2,
                                     onTagTap: (value) {},
                                     hashtagStyle: theme.textTheme.bodyMedium!
                                         .copyWith(

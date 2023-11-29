@@ -221,7 +221,8 @@ String getFirstValidLinkFromString(String text) {
       validLink = validLinks.first;
     }
     return validLink;
-  } catch (e) {
+  } on Exception catch (err, stacktrace) {
+    LMFeedLogger.instance.handleException(err, stacktrace);
     return '';
   }
 }

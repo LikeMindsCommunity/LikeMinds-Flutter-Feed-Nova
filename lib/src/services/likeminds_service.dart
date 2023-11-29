@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/services/media_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
@@ -94,6 +95,8 @@ abstract class ILikeMindsService {
 
   Future<EditProfileResponse> editProfile(EditProfileRequest request);
 
+  Future<PushLogResponse> pushLogs(PushLogRequest request);
+
   void routeToProfile(String userId);
 
   void routeToCompany(String userId);
@@ -111,18 +114,22 @@ class LikeMindsService implements ILikeMindsService {
 
   int? get getFeedroomId => feedroomId;
 
-  LikeMindsService(LMSDKCallback? sdkCallback, String apiKey) {
+  LikeMindsService(SetupLMFeedRequest setupLMFeedRequest) {
     debugPrint("UI Layer: LikeMindsService initialized");
     _mediaService = MediaService(_prodFlag);
-    final String key = apiKey.isEmpty
+    final String key = setupLMFeedRequest.apiKey.isEmpty
         ? _prodFlag
             ? CredsProd.apiKey
             : CredsDev.apiKey
-        : apiKey;
-    _sdkApplication = (LMFeedClientBuilder()
-          ..apiKey(key)
-          ..sdkCallback(sdkCallback))
-        .build();
+        : setupLMFeedRequest.apiKey;
+    LMFeedClientBuilder lmFeedClientBuilder = LMFeedClientBuilder()
+      ..apiKey(key)
+      ..sdkCallback(setupLMFeedRequest.lmCallBack);
+    if (setupLMFeedRequest.initiateLoggerRequest != null) {
+      lmFeedClientBuilder
+          .initiateLoggerRequest(setupLMFeedRequest.initiateLoggerRequest!);
+    }
+    _sdkApplication = lmFeedClientBuilder.build();
   }
 
   @override
@@ -130,8 +137,15 @@ class LikeMindsService implements ILikeMindsService {
     UserLocalPreference userLocalPreference = UserLocalPreference.instance;
     await userLocalPreference.initialize();
     InitiateUserResponse response = await _sdkApplication.initiateUser(request);
-    await UserLocalPreference.instance
-        .setUserDataFromInitiateUserResponse(response);
+    if (response.success) {
+      await UserLocalPreference.instance
+          .setUserDataFromInitiateUserResponse(response);
+      if (!logsPushedOnAppStartup) {
+        logsPushedOnAppStartup = true;
+        LMFeedLogger.instance.flushLogs();
+      }
+    }
+
     return response;
   }
 
@@ -345,6 +359,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<EditProfileResponse> editProfile(EditProfileRequest request) {
     return _sdkApplication.editProfile(request);
+  }
+
+  @override
+  Future<PushLogResponse> pushLogs(PushLogRequest request) {
+    return _sdkApplication.pushLogs(request);
   }
 
   @override
