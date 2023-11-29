@@ -42,7 +42,6 @@ dependencies:
   media_kit_video: ^1.1.8 # For video rendering.
   media_kit_libs_video: ^1.0.1
   realm: ^1.6.0
-  package_info_plus: ^4.2.0
 
   flutter_typeahead_mm:
     path: lib/packages/flutter_typeahead-4.3.7

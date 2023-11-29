@@ -37,6 +37,9 @@ export 'src/models/feed/setup_feed_request.dart';
 const prodFlag = !bool.fromEnvironment('DEBUG', defaultValue: true);
 //bool _initialURILinkHandled = false;
 
+// Current version of the package
+const String feedPackageVersion = "0.8.2";
+
 bool logsPushedOnAppStartup = false;
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =

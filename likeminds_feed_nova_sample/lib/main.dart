@@ -37,10 +37,6 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   await setupNotifications();
 
-  // Fetch UI version and Feed-Nova package version
-  String uiVersion = await getFeedUIVersion();
-  String sampleAppVersion = await getFeedPackageVersion();
-
   // InitiateLoggerRequest must be passed in setupLMFeed function
   // to enable error logging with LM
   InitiateLoggerRequest initiateLoggerRequest = (InitiateLoggerRequestBuilder()
@@ -57,11 +53,11 @@ void main() async {
           debugPrint("---------------------");
         })
         // defines the package version being used
-        ..sampleAppVersion(sampleAppVersion)
+        ..sampleAppVersion(feedPackageVersion)
         // whether or not to share logs with LM
         ..shareLogsWithLM(true)
         // defines the UI version being used
-        ..uiVersion(uiVersion))
+        ..uiVersion(feedUIVersion))
       .build();
 
   // Setup LM Feed
