@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+import 'package:likeminds_feed_nova_fl/src/models/feed/setup_feed_request.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/navigation_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
@@ -46,14 +47,25 @@ class SharePost {
     List secondPathSegment = request.link.split('post_id=');
     if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
       String postId = secondPathSegment[1];
-      setupLMFeed(request.callback, request.apiKey);
-      await locator<LikeMindsService>()
-          .initiateUser((InitiateUserRequestBuilder()
-                ..apiKey(request.apiKey)
-                ..userId(request.userUniqueId)
-                ..imageUrl(request.imageURL ?? '')
-                ..userName(request.userName))
-              .build());
+
+      SetupLMFeedRequestBuilder setupLMFeedRequestBuilder =
+          (SetupLMFeedRequestBuilder()..apiKey(request.apiKey));
+
+      if (request.callback != null) {
+        setupLMFeedRequestBuilder.lmCallBack(request.callback!);
+      }
+
+      setupLMFeed(setupLMFeedRequestBuilder.build());
+
+      InitiateUserRequest initiateUserRequest = (InitiateUserRequestBuilder()
+            ..apiKey(request.apiKey)
+            ..userId(request.userUniqueId)
+            ..imageUrl(request.imageURL ?? '')
+            ..userName(request.userName))
+          .build();
+
+      await locator<LikeMindsService>().initiateUser(initiateUserRequest);
+
       if (!locator<NavigationService>().checkNullState()) {
         locator<NavigationService>().navigatorKey.currentState!.push(
               MaterialPageRoute(

@@ -567,7 +567,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               LMProfilePicture(
@@ -580,7 +579,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                         user.sdkClientInfo!.userUniqueId);
                                   }
                                 },
-                                size: 48,
                                 boxShape: BoxShape.circle,
                               ),
                               kHorizontalPaddingLarge,
@@ -648,7 +646,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                         linkModel: linkModel,
                                         backgroundColor:
                                             theme!.colorScheme.surface,
-                                        showLinkUrl: false,
                                         onTap: () {
                                           launchUrl(
                                             Uri.parse(
@@ -1022,7 +1019,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           ),
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Opacity(
                                 opacity: isMediaPost ? 1 : 0.5,
@@ -1269,13 +1265,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
         onUploadedMedia(false);
         return;
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
       onUploadedMedia(false);
-      print(e.toString());
+      print(err.toString());
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return;
     }
   }

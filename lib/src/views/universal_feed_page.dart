@@ -10,7 +10,7 @@ import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/simple_bloc_observer.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/universal_feed/universal_feed_bloc.dart';
-import 'package:likeminds_feed_nova_fl/src/models/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
@@ -250,7 +250,6 @@ class _UniversalFeedScreenState extends State<UniversalFeedScreen> {
           },
           child: const LMTextView(
             text: "Feed",
-            textAlign: TextAlign.start,
             textStyle: TextStyle(
               color: kWhiteColor,
               fontSize: 28,
@@ -744,11 +743,8 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           const SizedBox(
                             width: 50,
@@ -778,11 +774,8 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           getLoaderThumbnail(state.thumbnailMedia),
                           kHorizontalPaddingMedium,
@@ -985,7 +978,10 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                             "post_type": postType,
                                           });
                                         }
-                                      } catch (_) {}
+                                      } on Exception catch (err, stacktrace) {
+                                        LMFeedLogger.instance
+                                            .handleException(err, stacktrace);
+                                      }
                                       newPostBloc.add(TogglePinPost(
                                           postId: item.id,
                                           isPinned: !item.isPinned));
@@ -1003,8 +999,10 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                             "post_type": postType,
                                           },
                                         );
-                                      } catch (err) {
+                                      } on Exception catch (err, stacktrace) {
                                         debugPrint(err.toString());
+                                        LMFeedLogger.instance
+                                            .handleException(err, stacktrace);
                                       }
                                       List<TopicUI> postTopics = [];
 
@@ -1067,7 +1065,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                           firstPageProgressIndicatorBuilder: (context) =>
                               const LMFeedShimmer(),
                           newPageProgressIndicatorBuilder: (context) => Padding(
-                            padding: EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Center(
                                 child: CircularProgressIndicator(
                               color: ColorTheme.novaTheme.primaryColor,
@@ -1138,7 +1136,6 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                         borderRadius: 28,
                         backgroundColor:
                             right ? theme.colorScheme.primary : kGrey3Color,
-                        placement: LMIconPlacement.start,
                         text: LMTextView(
                           text: "New Post",
                           textStyle: theme.textTheme.bodyMedium,

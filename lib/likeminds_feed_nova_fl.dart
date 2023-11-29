@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_no_internet_widget/flutter_no_internet_widget.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/src/models/feed/setup_feed_request.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/network_handling.dart';
 
@@ -30,10 +31,16 @@ export 'src/widgets/feed/user_feed_widget.dart';
 export 'src/widgets/feed/company_feed_widget.dart';
 export 'src/models/company_view_model.dart';
 export 'src/views/post/new_post_screen.dart';
+export 'src/models/feed/setup_feed_request.dart';
 
 /// Flutter environment manager v0.0.1
 const prodFlag = !bool.fromEnvironment('DEBUG', defaultValue: true);
 //bool _initialURILinkHandled = false;
+
+// Current version of the package
+const String feedPackageVersion = "0.8.2";
+
+bool logsPushedOnAppStartup = false;
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -42,10 +49,10 @@ class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
   final String? imageUrl;
-  final String apiKey;
   final Function(BuildContext context)? openChatCallback;
-  final LMSDKCallback? callback;
   final Map<int, Widget>? customWidgets;
+  static bool? shareErrorLogsWithLM;
+  static Function(LMStackTrace stackTrace)? onErrorHandler;
 
   /// INIT - Get the LMFeed instance and pass the credentials (if any)
   /// to the instance. This will be used to initialize the app.
@@ -55,32 +62,20 @@ class LMFeed extends StatefulWidget {
     String? userId,
     String? userName,
     String? imageUrl,
-    LMSDKCallback? callback,
     Function(BuildContext context)? openChatCallback,
-    required String apiKey,
     Map<int, Widget>? customWidgets,
   }) {
     return LMFeed._(
       userId: userId,
       userName: userName,
-      callback: callback,
       imageUrl: imageUrl,
-      apiKey: apiKey,
       customWidgets: customWidgets,
       openChatCallback: openChatCallback,
     );
   }
 
-  static void setupFeed({
-    required String apiKey,
-    LMSDKCallback? lmCallBack,
-    GlobalKey<NavigatorState>? navigatorKey,
-  }) {
-    setupLMFeed(
-      lmCallBack,
-      apiKey,
-      navigatorKey: navigatorKey ?? GlobalKey<NavigatorState>(),
-    );
+  static void setupFeed({required SetupLMFeedRequest setupLMFeedRequest}) {
+    setupLMFeed(setupLMFeedRequest);
   }
 
   static void logout() {
@@ -92,8 +87,6 @@ class LMFeed extends StatefulWidget {
     this.userId,
     this.userName,
     this.imageUrl,
-    required this.callback,
-    required this.apiKey,
     this.customWidgets,
     this.openChatCallback,
   }) : super(key: key);
@@ -111,6 +104,7 @@ class _LMFeedState extends State<LMFeed> {
   late final NetworkConnectivity networkConnectivity;
   ValueNotifier<bool> rebuildOnConnectivityChange = ValueNotifier<bool>(false);
   Map<int, Widget>? customWidgets;
+  Future<InitiateUserResponse>? initiateUser;
 
   @override
   void initState() {
@@ -127,27 +121,47 @@ class _LMFeedState extends State<LMFeed> {
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
     imageUrl = widget.imageUrl;
+    initiateUser = locator<LikeMindsService>().initiateUser(
+      (InitiateUserRequestBuilder()
+            ..userId(userId)
+            ..userName(userName)
+            ..imageUrl(imageUrl ?? ''))
+          .build(),
+    );
     customWidgets = widget.customWidgets;
     firebase();
+  }
+
+  @override
+  void didUpdateWidget(covariant LMFeed oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    initiateUser = locator<LikeMindsService>().initiateUser(
+      (InitiateUserRequestBuilder()
+            ..userId(userId)
+            ..userName(userName)
+            ..imageUrl(imageUrl ?? ''))
+          .build(),
+    );
   }
 
   void firebase() {
     try {
       final firebase = Firebase.app();
       debugPrint("Firebase - ${firebase.options.appId}");
-    } on FirebaseException catch (e) {
-      debugPrint("Make sure you have initialized firebase, ${e.toString()}");
+    } on FirebaseException catch (err, stacktrace) {
+      debugPrint("Make sure you have initialized firebase, ${err.toString()}");
+      LMFeedLogger.instance.handleException(err, stacktrace);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screeSize = MediaQuery.of(context).size;
-
+    Size screenSize = MediaQuery.of(context).size;
     return InternetWidget(
       offline: FullScreenWidget(
         child: Container(
-          width: screeSize.width,
+          width: screenSize.width,
           color: ColorTheme.backgroundColor,
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -180,24 +194,30 @@ class _LMFeedState extends State<LMFeed> {
       // ignore: avoid_print
       whenOnline: () {
         debugPrint('Connected to internet');
+        locator<LikeMindsService>().initiateUser(
+          (InitiateUserRequestBuilder()
+                ..userId(userId)
+                ..userName(userName)
+                ..imageUrl(imageUrl ?? ''))
+              .build(),
+        );
         rebuildOnConnectivityChange.value = !rebuildOnConnectivityChange.value;
       },
-      loadingWidget: Center(
+      loadingWidget: Container(
+        width: screenSize.width,
+        height: screenSize.height,
+        color: ColorTheme.backgroundColor,
+        child: Center(
           child: CircularProgressIndicator(
-        color: ColorTheme.novaTheme.primaryColor,
-      )),
+            color: ColorTheme.novaTheme.primaryColor,
+          ),
+        ),
+      ),
       online: ValueListenableBuilder(
           valueListenable: rebuildOnConnectivityChange,
           builder: (context, _, __) {
             return FutureBuilder<InitiateUserResponse>(
-              future: locator<LikeMindsService>().initiateUser(
-                (InitiateUserRequestBuilder()
-                      ..userId(userId)
-                      ..userName(userName)
-                      ..imageUrl(imageUrl ?? ''))
-                    .build(),
-              ),
-              initialData: null,
+              future: initiateUser,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   InitiateUserResponse response = snapshot.data;
@@ -208,16 +228,8 @@ class _LMFeedState extends State<LMFeed> {
                     locator<LikeMindsService>().getCommunityConfigurations();
 
                     LMNotificationHandler.instance.registerDevice(user!.id);
-                    return
-                        // MaterialApp(
-                        //   debugShowCheckedModeBanner: !isProd,
-                        //   navigatorKey: locator<NavigationService>().navigatorKey,
-                        //   theme: ColorTheme.novaTheme,
-                        //   title: 'LM Feed',
-                        //  home:
-                        FutureBuilder(
+                    return FutureBuilder(
                       future: locator<LikeMindsService>().getMemberState(),
-                      initialData: null,
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
                           //TODO: Add Custom widget here
@@ -228,12 +240,11 @@ class _LMFeedState extends State<LMFeed> {
                         }
 
                         return Container(
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
+                          height: screenSize.height,
+                          width: screenSize.width,
                           color: ColorTheme.backgroundColor,
                           child: Center(
                             child: LMLoader(
-                              isPrimary: true,
                               color: ColorTheme.novaTheme.primaryColor,
                             ),
                           ),
@@ -245,8 +256,8 @@ class _LMFeedState extends State<LMFeed> {
                 } else if (snapshot.hasError) {
                   debugPrint("Error - ${snapshot.error}");
                   return Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
+                    height: screenSize.height,
+                    width: screenSize.width,
                     color: ColorTheme.backgroundColor,
                     child: const Center(
                       child: Text("An error has occured",
@@ -260,8 +271,8 @@ class _LMFeedState extends State<LMFeed> {
                   );
                 }
                 return Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
+                  height: screenSize.height,
+                  width: screenSize.width,
                   color: ColorTheme.backgroundColor,
                 );
               },

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
@@ -88,7 +89,6 @@ class PostMediaPicker {
       // final XFile? pickedFile =
       List<MediaModel> videoFiles = [];
       final FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
         type: FileType.video,
         // allowedExtensions: videoExtentions,
       );
@@ -118,9 +118,7 @@ class PostMediaPicker {
               File video = File(file.path);
               VideoPlayerController controller = VideoPlayerController.file(
                 video,
-                videoPlayerOptions: VideoPlayerOptions(
-                  mixWithOthers: false,
-                ),
+                videoPlayerOptions: VideoPlayerOptions(),
               );
               await controller.initialize();
               Duration videoDuration = controller.value.duration;
@@ -140,12 +138,13 @@ class PostMediaPicker {
       } else {
         return null;
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
-      debugPrint(e.toString());
+      debugPrint(err.toString());
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return null;
     }
   }
@@ -188,11 +187,12 @@ class PostMediaPicker {
       } else {
         return null;
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return null;
     }
   }

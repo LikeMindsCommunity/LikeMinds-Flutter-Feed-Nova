@@ -107,7 +107,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       } else {
         return const Iterable.empty();
       }
-    } catch (e) {
+    } on Exception catch (err, stacktrace) {
+      LMFeedLogger.instance.handleException(err, stacktrace);
       return const Iterable.empty();
     }
   }
@@ -121,7 +122,6 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         onTagTap: (p) {},
         suggestionsBoxController: _suggestionsBoxController,
         suggestionsBoxDecoration: SuggestionsBoxDecoration(
-          elevation: 4,
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.22,
           ),
@@ -182,12 +182,10 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                 child: Row(
                   children: [
                     AbsorbPointer(
-                      absorbing: true,
                       child: LMProfilePicture(
                         fallbackText: opt.name!,
                         imageUrl: opt.imageUrl!,
                         backgroundColor: theme.primaryColor,
-                        onTap: null,
                         boxShape: BoxShape.circle,
                         size: 40,
                       ),
