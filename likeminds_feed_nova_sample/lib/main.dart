@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_sample/cred_screen.dart';
 import 'package:likeminds_feed_nova_sample/credentials/credentials.dart';
 import 'package:likeminds_feed_nova_sample/firebase_options.dart';
 import 'package:likeminds_feed_nova_sample/likeminds_callback.dart';
 import 'package:likeminds_feed_nova_sample/user_local_preference.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -35,11 +37,46 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   await setupNotifications();
 
-  LMFeed.setupFeed(
-    apiKey: debug ? CredsDev.apiKey : CredsProd.apiKey,
-    lmCallBack: LikeMindsCallback(),
-    navigatorKey: navigatorKey,
-  );
+  // Fetch UI version and Feed-Nova package version
+  String uiVersion = await getFeedUIVersion();
+  String sampleAppVersion = await getFeedPackageVersion();
+
+  // InitiateLoggerRequest must be passed in setupLMFeed function
+  // to enable error logging with LM
+  InitiateLoggerRequest initiateLoggerRequest = (InitiateLoggerRequestBuilder()
+        // defines the minimum severity level of logs to be processed
+        ..logLevel(Severity.ERROR)
+        // function to be called in case of an error
+        ..errorHandler((exception, stack) {
+          debugPrint("---------------------");
+          debugPrint("Error handler called");
+          debugPrint("---------------------");
+          debugPrint("Exception - $exception");
+          debugPrint("---------------------");
+          debugPrintStack(stackTrace: stack);
+          debugPrint("---------------------");
+        })
+        // defines the package version being used
+        ..sampleAppVersion(sampleAppVersion)
+        // whether or not to share logs with LM
+        ..shareLogsWithLM(true)
+        // defines the UI version being used
+        ..uiVersion(uiVersion))
+      .build();
+
+  // Setup LM Feed
+  // 1. Get API key
+  // 2. Pass InitiateLoggerRequest [OPTIONAL]
+  // 3. Pass navigatorKey [OPTIONAL]
+  // 4. Pass LMSDKCallback [OPTIONAL]
+  SetupLMFeedRequestBuilder setupLMFeedRequestBuilder =
+      (SetupLMFeedRequestBuilder()
+        ..apiKey(debug ? CredsDev.apiKey : CredsProd.apiKey)
+        ..initiateLoggerRequest(initiateLoggerRequest)
+        ..navigatorKey(navigatorKey)
+        ..lmCallBack(LikeMindsCallback()));
+  LMFeed.setupFeed(setupLMFeedRequest: setupLMFeedRequestBuilder.build());
+
   await SampleUserLocalPreference.instance.initialize();
   runApp(const MyApp());
 }

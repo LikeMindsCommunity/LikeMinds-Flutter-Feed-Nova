@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_no_internet_widget/flutter_no_internet_widget.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:likeminds_feed_nova_fl/src/persistence/logger/logger.dart';
+import 'package:likeminds_feed_nova_fl/src/models/feed/setup_feed_request.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/network_handling.dart';
 
@@ -31,10 +31,13 @@ export 'src/widgets/feed/user_feed_widget.dart';
 export 'src/widgets/feed/company_feed_widget.dart';
 export 'src/models/company_view_model.dart';
 export 'src/views/post/new_post_screen.dart';
+export 'src/models/feed/setup_feed_request.dart';
 
 /// Flutter environment manager v0.0.1
 const prodFlag = !bool.fromEnvironment('DEBUG', defaultValue: true);
 //bool _initialURILinkHandled = false;
+
+bool logsPushedOnAppStartup = false;
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -68,18 +71,8 @@ class LMFeed extends StatefulWidget {
     );
   }
 
-  static void setupFeed({
-    required String apiKey,
-    LMSDKCallback? lmCallBack,
-    GlobalKey<NavigatorState>? navigatorKey,
-    bool shareErrorLogsWithLM = true,
-    Function(LMStackTrace stackTrace)? onErrorHandler,
-  }) {
-    setupLMFeed(
-      lmCallBack,
-      apiKey,
-      navigatorKey: navigatorKey ?? GlobalKey<NavigatorState>(),
-    );
+  static void setupFeed({required SetupLMFeedRequest setupLMFeedRequest}) {
+    setupLMFeed(setupLMFeedRequest);
   }
 
   static void logout() {
@@ -155,7 +148,7 @@ class _LMFeedState extends State<LMFeed> {
       debugPrint("Firebase - ${firebase.options.appId}");
     } on FirebaseException catch (err, stacktrace) {
       debugPrint("Make sure you have initialized firebase, ${err.toString()}");
-      LMFeedLogger.instance.handleException(err.toString(), stacktrace);
+      LMFeedLogger.instance.handleException(err, stacktrace);
     }
   }
 
@@ -222,7 +215,6 @@ class _LMFeedState extends State<LMFeed> {
           builder: (context, _, __) {
             return FutureBuilder<InitiateUserResponse>(
               future: initiateUser,
-              initialData: null,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   InitiateUserResponse response = snapshot.data;
@@ -235,7 +227,6 @@ class _LMFeedState extends State<LMFeed> {
                     LMNotificationHandler.instance.registerDevice(user!.id);
                     return FutureBuilder(
                       future: locator<LikeMindsService>().getMemberState(),
-                      initialData: null,
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
                           //TODO: Add Custom widget here
@@ -251,7 +242,6 @@ class _LMFeedState extends State<LMFeed> {
                           color: ColorTheme.backgroundColor,
                           child: Center(
                             child: LMLoader(
-                              isPrimary: true,
                               color: ColorTheme.novaTheme.primaryColor,
                             ),
                           ),
