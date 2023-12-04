@@ -1227,10 +1227,23 @@ class _NewPostScreenState extends State<NewPostScreen> {
         allowMultiple: true,
         type: FileType.image,
       );
-      final config =
+      CommunityConfigurations config =
           await UserLocalPreference.instance.getCommunityConfigurations();
-      double sizeLimit = (config.value!["max_image_size"]! / 1024) as double;
-      sizeLimit = sizeLimit.truncateToDouble();
+      if (config.value == null || config.value!["max_image_size"] == null) {
+        final response =
+            await locator<LikeMindsService>().getCommunityConfigurations();
+        if (response.communityConfigurations != null &&
+            response.communityConfigurations!.isNotEmpty) {
+          config = response.communityConfigurations!.first;
+        }
+      }
+      double sizeLimit;
+      if (config.value != null && config.value!["max_image_size"] != null) {
+        sizeLimit = (config.value!["max_image_size"]! / 1024) as double;
+      } else {
+        sizeLimit = 5;
+      }
+
       if (list != null && list.files.isNotEmpty) {
         if (postMedia.length + list.files.length > 10) {
           toast(

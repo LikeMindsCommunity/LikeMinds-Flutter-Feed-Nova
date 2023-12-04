@@ -5,81 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "likeminds_feed_nova_fl",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "likeminds_feed_nova_fl (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "likeminds_feed_nova_fl (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        {
-            "name": "likeminds_feed_nova_sample",
-            "cwd": "likeminds_feed_nova_sample",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "likeminds_feed_nova_sample (profile mode)",
-            "cwd": "likeminds_feed_nova_sample",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "likeminds_feed_nova_sample (release mode)",
-            "cwd": "likeminds_feed_nova_sample",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        {
-            "name": "flutter_typeahead-4.3.7",
-            "cwd": "lib/packages/flutter_typeahead-4.3.7",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "flutter_typeahead-4.3.7 (profile mode)",
-            "cwd": "lib/packages/flutter_typeahead-4.3.7",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "flutter_typeahead-4.3.7 (release mode)",
-            "cwd": "lib/packages/flutter_typeahead-4.3.7",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
-        {
-            "name": "multi_image_crop",
-            "cwd": "lib/packages/multi_image_crop",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "multi_image_crop (profile mode)",
-            "cwd": "lib/packages/multi_image_crop",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "multi_image_crop (release mode)",
-            "cwd": "lib/packages/multi_image_crop",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
+            "name": "Flutter",
+             "type": "dart",
+             "request": "launch",
+             "program": "likeminds_feed_nova_sample/lib/main.dart",
+             "args": ["--dart-define", "DEBUG=true"]
+           },
     ]
 }

@@ -4,6 +4,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
@@ -93,9 +95,22 @@ class PostMediaPicker {
         // allowedExtensions: videoExtentions,
       );
 
-      final config =
+      CommunityConfigurations config =
           await UserLocalPreference.instance.getCommunityConfigurations();
-      final sizeLimit = (config.value!["max_video_size"]! / 1024).floor();
+      if (config.value == null || config.value!["max_video_size"] == null) {
+        final response =
+            await locator<LikeMindsService>().getCommunityConfigurations();
+        if (response.communityConfigurations != null &&
+            response.communityConfigurations!.isNotEmpty) {
+          config = response.communityConfigurations!.first;
+        }
+      }
+      double sizeLimit;
+      if (config.value != null && config.value!["max_video_size"] != null) {
+        sizeLimit = (config.value!["max_video_size"]! / 1024).floor();
+      } else {
+        sizeLimit = 100;
+      }
 
       if (pickedFiles!.files.isNotEmpty) {
         if (currentMediaLength + 1 > 10) {
