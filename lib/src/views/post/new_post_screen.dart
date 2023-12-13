@@ -1035,9 +1035,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                           LMAnalytics.get().track(
                                               AnalyticsKeys.clickedOnAttachment,
                                               {'type': 'image'});
-                                          final result =
-                                              await handlePermissions(
-                                                  context, 1);
+                                          final result = await PostMediaPicker
+                                              .handlePermissions(context, 1);
                                           if (result) {
                                             pickImages();
                                           }
@@ -1059,9 +1058,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                       ),
                                       onTap: (active) async {
                                         onUploading();
+                                        final result = await PostMediaPicker
+                                            .handlePermissions(context, 2);
+                                        if (!result) {
+                                          onUploadedMedia(false);
+                                          return;
+                                        }
                                         List<MediaModel>? pickedMediaFiles =
                                             await PostMediaPicker.pickVideos(
-                                                postMedia.length);
+                                                postMedia.length,
+                                                onUploadedMedia);
                                         if (pickedMediaFiles != null) {
                                           setPickedMediaFiles(pickedMediaFiles);
                                           onUploadedMedia(true);
@@ -1153,73 +1159,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
     });
   }
 
-  Future<bool> handlePermissions(BuildContext context, int mediaType) async {
-    if (Platform.isAndroid) {
-      PermissionStatus permissionStatus;
-
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      if (androidInfo.version.sdkInt >= 33) {
-        if (mediaType == 1) {
-          permissionStatus = await Permission.photos.status;
-          if (permissionStatus == PermissionStatus.granted) {
-            return true;
-          } else if (permissionStatus == PermissionStatus.denied) {
-            permissionStatus = await Permission.photos.request();
-            if (permissionStatus == PermissionStatus.permanentlyDenied) {
-              toast(
-                'Permissions denied, change app settings',
-                duration: Toast.LENGTH_LONG,
-              );
-              return false;
-            } else if (permissionStatus == PermissionStatus.granted) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        } else {
-          permissionStatus = await Permission.videos.status;
-          if (permissionStatus == PermissionStatus.granted) {
-            return true;
-          } else if (permissionStatus == PermissionStatus.denied) {
-            permissionStatus = await Permission.videos.request();
-            if (permissionStatus == PermissionStatus.permanentlyDenied) {
-              toast(
-                'Permissions denied, change app settings',
-                duration: Toast.LENGTH_LONG,
-              );
-              return false;
-            } else if (permissionStatus == PermissionStatus.granted) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      } else {
-        permissionStatus = await Permission.storage.status;
-        if (permissionStatus == PermissionStatus.granted) {
-          return true;
-        } else {
-          permissionStatus = await Permission.storage.request();
-          if (permissionStatus == PermissionStatus.granted) {
-            return true;
-          } else if (permissionStatus == PermissionStatus.denied) {
-            return false;
-          } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
-            toast(
-              'Permissions denied, change app settings',
-              duration: Toast.LENGTH_LONG,
-            );
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
   void pickImages() async {
     onUploading();
     try {
@@ -1289,6 +1228,4 @@ class _NewPostScreenState extends State<NewPostScreen> {
       return;
     }
   }
-
-  void pickVideos(BuildContext context) async {}
 }

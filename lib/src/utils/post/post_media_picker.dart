@@ -40,12 +40,30 @@ class PostMediaPicker {
               return false;
             }
           }
-        } else {
+        } else if (mediaType == 2) {
           permissionStatus = await Permission.videos.status;
           if (permissionStatus == PermissionStatus.granted) {
             return true;
           } else if (permissionStatus == PermissionStatus.denied) {
             permissionStatus = await Permission.videos.request();
+            if (permissionStatus == PermissionStatus.permanentlyDenied) {
+              toast(
+                'Permissions denied, change app settings',
+                duration: Toast.LENGTH_LONG,
+              );
+              return false;
+            } else if (permissionStatus == PermissionStatus.granted) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        } else if (mediaType == 3) {
+          permissionStatus = await Permission.manageExternalStorage.status;
+          if (permissionStatus == PermissionStatus.granted) {
+            return true;
+          } else if (permissionStatus == PermissionStatus.denied) {
+            permissionStatus = await Permission.storage.request();
             if (permissionStatus == PermissionStatus.permanentlyDenied) {
               toast(
                 'Permissions denied, change app settings',
@@ -82,42 +100,45 @@ class PostMediaPicker {
     return true;
   }
 
-  static Future<List<File>> pickPhotos() async {
-    return [];
-  }
-
-  static Future<List<MediaModel>?> pickVideos(int currentMediaLength) async {
+  static Future<List<MediaModel>?> pickVideos(
+      int currentMediaLength, Function(bool) onUploadedMedia) async {
     try {
       // final XFile? pickedFile =
       List<MediaModel> videoFiles = [];
       final FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(
         type: FileType.video,
-        // allowedExtensions: videoExtentions,
       );
+
+      if (pickedFiles == null || pickedFiles.files.isEmpty) {
+        onUploadedMedia(false);
+        return null;
+      }
 
       CommunityConfigurations config =
           await UserLocalPreference.instance.getCommunityConfigurations();
       if (config.value == null || config.value!["max_video_size"] == null) {
-        final response =
+        final configResponse =
             await locator<LikeMindsService>().getCommunityConfigurations();
-        if (response.communityConfigurations != null &&
-            response.communityConfigurations!.isNotEmpty) {
-          config = response.communityConfigurations!.first;
+        if (configResponse.success &&
+            configResponse.communityConfigurations != null &&
+            configResponse.communityConfigurations!.isNotEmpty) {
+          config = configResponse.communityConfigurations!.first;
         }
       }
-      double sizeLimit;
+      final double sizeLimit;
       if (config.value != null && config.value!["max_video_size"] != null) {
-        sizeLimit = (config.value!["max_video_size"]! / 1024).floor();
+        sizeLimit = config.value!["max_video_size"]! / 1024;
       } else {
         sizeLimit = 100;
       }
 
-      if (pickedFiles!.files.isNotEmpty) {
+      if (pickedFiles.files.isNotEmpty) {
         if (currentMediaLength + 1 > 10) {
           toast(
             'A total of 10 attachments can be added to a post',
             duration: Toast.LENGTH_LONG,
           );
+          onUploadedMedia(false);
           return null;
         } else {
           for (PlatformFile pFile in pickedFiles.files) {
@@ -126,7 +147,7 @@ class PostMediaPicker {
             double fileSize = getFileSizeInDouble(fileBytes);
             if (fileSize > sizeLimit) {
               toast(
-                'Max file size allowed: ${sizeLimit}MB',
+                'Max file size allowed: ${sizeLimit.toStringAsFixed(2)}MB',
                 duration: Toast.LENGTH_LONG,
               );
             } else {
@@ -147,19 +168,20 @@ class PostMediaPicker {
               controller.dispose();
             }
           }
-
+          onUploadedMedia(true);
           return videoFiles;
         }
       } else {
+        onUploadedMedia(false);
         return null;
       }
-    } on Exception catch (err, stacktrace) {
+    } on Exception catch (e) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
-      debugPrint(err.toString());
-      LMFeedLogger.instance.handleException(err, stacktrace);
+      onUploadedMedia(false);
+      debugPrint(e.toString());
       return null;
     }
   }
@@ -198,16 +220,16 @@ class PostMediaPicker {
             attachedFiles.add(videoFile);
           }
         }
+
         return attachedFiles;
       } else {
         return null;
       }
-    } on Exception catch (err, stacktrace) {
+    } on Exception {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
       );
-      LMFeedLogger.instance.handleException(err, stacktrace);
       return null;
     }
   }

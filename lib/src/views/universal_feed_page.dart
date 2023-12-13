@@ -98,7 +98,6 @@ class _UniversalFeedScreenState extends State<UniversalFeedScreen> {
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = UniversalFeedBloc();
     _feedBloc.add(GetUniversalFeed(offset: 1, topics: selectedTopics));
-    updateUnreadNotificationCount();
     _controller.addListener(_scrollListener);
     userPostingRights = checkPostCreationRights();
   }
@@ -130,27 +129,6 @@ class _UniversalFeedScreenState extends State<UniversalFeedScreen> {
         postSomethingNotifier.value = !postSomethingNotifier.value;
       }
     }
-  }
-
-  void updateSelectedTopics(List<TopicUI> topics) {
-    selectedTopics = topics;
-    rebuildTopicFeed.value = !rebuildTopicFeed.value;
-    clearPagingController();
-    _feedBloc.add(
-      GetUniversalFeed(
-        offset: 1,
-        topics: selectedTopics,
-      ),
-    );
-  }
-
-  // This function fetches the unread notification count
-  // and updates the respective future
-  void updateUnreadNotificationCount() async {
-    getUnreadNotificationCount =
-        locator<LikeMindsService>().getUnreadNotificationCount();
-    await getUnreadNotificationCount;
-    _rebuildAppBar.value = !_rebuildAppBar.value;
   }
 
   @override
@@ -208,33 +186,6 @@ class _UniversalFeedScreenState extends State<UniversalFeedScreen> {
     if (_pagingController.itemList != null) _pagingController.itemList?.clear();
     _pageFeed = 1;
   }
-
-  // TODO Nova: Uncomment this when topics are enabled
-  // void showTopicSelectSheet() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     elevation: 5,
-  //     isDismissible: true,
-  //     useRootNavigator: true,
-  //     backgroundColor: Colors.transparent,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(28.0),
-  //         topRight: Radius.circular(28.0),
-  //       ),
-  //     ),
-  //     enableDrag: false,
-  //     clipBehavior: Clip.hardEdge,
-  //     builder: (context) => TopicBottomSheet(
-  //       key: GlobalKey(),
-  //       backgroundColor: theme!.colorScheme.surface,
-  //       selectedTopics: selectedTopics,
-  //       onTopicSelected: (updatedTopics, tappedTopic) {
-  //         updateSelectedTopics(updatedTopics);
-  //       },
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -824,52 +775,6 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                         builderDelegate:
                             PagedChildBuilderDelegate<PostViewModel>(
                           noItemsFoundIndicatorBuilder: (context) {
-                            // TODO Nova: Uncomment this when topics are enabled
-                            // if (widget.universalFeedBloc.state
-                            //         is UniversalFeedLoaded &&
-                            //     (widget.universalFeedBloc.state
-                            //             as UniversalFeedLoaded)
-                            //         .topics
-                            //         .isNotEmpty) {
-                            //   return Center(
-                            //     child: Column(
-                            //       mainAxisAlignment: MainAxisAlignment.center,
-                            //       children: [
-                            //         LMTextView(
-                            //             text:
-                            //                 "Looks like there are no posts for this topic yet.",
-                            //             textStyle: theme.textTheme.labelMedium),
-                            //         const SizedBox(height: 16),
-                            //         Row(
-                            //           mainAxisAlignment:
-                            //               MainAxisAlignment.center,
-                            //           children: [
-                            //             LMTextButton(
-                            //               borderRadius: 48,
-                            //               height: 40,
-                            //               border: Border.all(
-                            //                 color: theme.colorScheme.primary,
-                            //                 width: 2,
-                            //               ),
-                            //               padding: const EdgeInsets.symmetric(
-                            //                   vertical: 8, horizontal: 12),
-                            //               text: LMTextView(
-                            //                   text: "Change Filter",
-                            //                   textAlign: TextAlign.center,
-                            //                   textStyle: theme
-                            //                       .textTheme.labelMedium!
-                            //                       .copyWith(
-                            //                           color: theme.colorScheme
-                            //                               .primary)),
-                            //               onTap: () =>
-                            //                   widget.openTopicBottomSheet(),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   );
-                            // }
                             return Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
