@@ -548,7 +548,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
   final ValueNotifier postSomethingNotifier = ValueNotifier(false);
   bool right = true;
 
-  Widget getLoaderThumbnail(MediaModel? media) {
+  Widget getLoaderThumbnail(AttachmentPostViewData? media) {
     if (media != null) {
       if (media.mediaType == MediaType.image) {
         return Container(
@@ -694,6 +694,8 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                 widget.feedResponse.users.addAll(curr.userData);
                 // widget.feedResponse.topics.addAll(curr.topics);
                 widget.feedResponse.widgets.addAll(curr.widgets);
+                debugPrint('------------${curr.repostedPosts.length}--------------------');
+                widget.feedResponse.repostedPosts.addAll(curr.repostedPosts);
                 widget.universalFeedPagingController.itemList =
                     universalFeedItemList;
                 postUploading.value = false;
@@ -913,6 +915,9 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                 const SizedBox(height: 2),
                                 NovaPostWidget(
                                   post: item,
+                                  users: widget.feedResponse.users,
+                                  repostedPost:
+                                      widget.feedResponse.repostedPosts,
                                   topics: widget.feedResponse.topics,
                                   widgets: widget.feedResponse.widgets,
                                   user: widget.feedResponse.users[item.userId]!,
@@ -948,6 +953,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                                   newPostBloc.add(
                                                     DeletePost(
                                                       postId: item.id,
+                                                      isRepost: item.isRepost,
                                                       reason:
                                                           reason ?? 'Self Post',
                                                     ),

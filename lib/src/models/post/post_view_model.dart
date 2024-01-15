@@ -19,6 +19,11 @@ class PostViewModel {
   final DateTime createdAt;
   DateTime updatedAt;
   bool isEdited;
+  bool isRepost;
+  bool isRepostedByUser;
+  int repostCount;
+  bool isDeleted;
+
   PostViewModel({
     required this.id,
     required this.text,
@@ -35,6 +40,10 @@ class PostViewModel {
     required this.isLiked,
     required this.commentCount,
     required this.isEdited,
+    required this.isRepost,
+    required this.isRepostedByUser,
+    required this.repostCount,
+    this.isDeleted = false,
   });
 
   factory PostViewModel.fromPost({required Post post}) {
@@ -54,6 +63,10 @@ class PostViewModel {
       menuItems: post.menuItems,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
+      isRepost: post.isRepost,
+      isRepostedByUser: post.isRepostedByUser,
+      repostCount: post.repostCount,
+      isDeleted: post.isDeleted?? false,
     );
   }
 
@@ -74,25 +87,34 @@ class PostViewModel {
       menuItems: menuItems,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isRepost: isRepost,
+      isRepostedByUser: isRepostedByUser,
+      repostCount: repostCount,
+      isDeleted: isDeleted,
     );
   }
 }
 
 PostViewModel getEmptyPostViewModel() {
   return PostViewModel(
-      id: '-9999',
-      text: 'Custom Widget',
-      attachments: null,
-      communityId: -9999,
-      isPinned: false,
-      userId: '-9999',
-      likeCount: 0,
-      isSaved: false,
-      topics: [],
-      menuItems: [],
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      isLiked: false,
-      commentCount: 0,
-      isEdited: false);
+    id: '-9999',
+    text: 'Custom Widget',
+    attachments: null,
+    communityId: -9999,
+    isPinned: false,
+    userId: '-9999',
+    likeCount: 0,
+    isSaved: false,
+    topics: [],
+    menuItems: [],
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    isLiked: false,
+    commentCount: 0,
+    isEdited: false,
+    isRepost: false,
+    isRepostedByUser: false,
+    repostCount: 0,
+    isDeleted: false,
+  );
 }

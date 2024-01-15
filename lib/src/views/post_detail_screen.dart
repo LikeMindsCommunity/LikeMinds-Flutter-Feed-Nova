@@ -862,6 +862,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       : NovaPostWidget(
                                           post: postData!,
                                           expanded: true,
+                                          users: postDetailResponse!.users!,
+                                          repostedPost: postDetailResponse!
+                                                  .repostedPosts ??
+                                              {},
                                           topics:
                                               postDetailResponse!.topics ?? {},
                                           widgets:
@@ -913,6 +917,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                             DeletePost(
                                                               postId:
                                                                   postData!.id,
+                                                              isRepost:
+                                                                  postData!
+                                                                      .isRepost,
                                                               reason: reason,
                                                             ),
                                                           );

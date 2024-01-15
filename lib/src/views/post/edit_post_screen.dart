@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post/post_composer_header.dart';
+import 'package:likeminds_feed_nova_fl/src/widgets/post/repost_widget.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -53,7 +55,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
   bool isMediaPost = false;
   String previewLink = '';
   String convertedPostText = '';
-  MediaModel? linkModel;
+  AttachmentPostViewData? linkModel;
   List<UserTag> userTags = [];
   bool showLinkPreview =
       true; // if set to false link preview should not be displayed
@@ -61,6 +63,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
   Size? screenSize;
   ThemeData? theme;
   Map<String, WidgetModel>? widgets;
+  bool showRepost = false;
+  Map<String, Post>? repostedPosts;
 
   void _onTextChanged(String p0) {
     if (_debounce?.isActive ?? false) {
@@ -123,7 +127,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
           await locator<LikeMindsService>().decodeUrl(request);
       if (response.success == true) {
         OgTags? responseTags = response.ogTags;
-        linkModel = MediaModel(
+        linkModel = AttachmentPostViewData(
           mediaType: MediaType.link,
           link: previewLink,
           ogTags: AttachmentMetaOgTags(
@@ -202,7 +206,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
     }
   }
 
-  void setPostData(Post post) {
+  void setPostData(Post post, Map<String, Post> repostedPosts) {
+    this.repostedPosts = repostedPosts;
     if (postDetails == null) {
       postDetails = post;
       convertedPostText = TaggingHelper.convertRouteToTag(post.text);
@@ -220,10 +225,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
           isDocumentPost = true;
           showLinkPreview = false;
         } else if (attachments![0].attachmentType == 4) {
-          linkModel = MediaModel(
+          linkModel = AttachmentPostViewData(
               mediaType: MediaType.link,
               link: attachments![0].attachmentMeta.url,
               ogTags: attachments![0].attachmentMeta.ogTags);
+        } else if (attachments![0].attachmentType == 8) {
+          showRepost = true;
+          isMediaPost = false;
+          showLinkPreview = false;
         }
       }
     }
@@ -413,7 +422,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     GetPostResponse response = snapshot.data!;
                     widgets = response.widgets;
                     if (response.success) {
-                      setPostData(response.post!);
+                      setPostData(response.post!, response.repostedPosts!);
                       return postEditWidget();
                     } else {
                       return postErrorScreen(response.errorMessage!);
@@ -565,7 +574,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   //   );
                   //   return;
                   // }
-
                   newPostBloc?.add(
                     EditPost(
                       postText: result,
@@ -573,6 +581,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       postId: postId,
                       // TODO: uncomment code for topic feature
                       selectedTopics: const [], //selectedTopics,
+                      isRepost: postDetails!.isRepost,
                     ),
                   );
                   Navigator.of(context).pop();
@@ -659,64 +668,79 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         top: 20.0,
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: ValueListenableBuilder(
-                          valueListenable: rebuildAttachments,
-                          builder: (context, value, child) => ((attachments !=
-                                              null &&
-                                          attachments!.isNotEmpty) &&
-                                      mapIntToMediaType(attachments!
-                                              .first.attachmentType) ==
-                                          MediaType.link &&
-                                      showLinkPreview) ||
-                                  (linkModel != null && showLinkPreview)
-                              ? Stack(
-                                  children: [
-                                    LMLinkPreview(
-                                      linkModel: linkModel,
-                                      backgroundColor:
-                                          theme!.colorScheme.surface,
-                                      showLinkUrl: false,
-                                      onTap: () {
-                                        launchUrl(
-                                          Uri.parse(
-                                              linkModel?.ogTags?.url ?? ''),
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      },
-                                      border: const Border(),
-                                      title: LMTextView(
-                                        text: linkModel?.ogTags?.title ?? "--",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textStyle: theme!.textTheme.titleMedium,
-                                      ),
-                                      subtitle: LMTextView(
-                                        text: linkModel?.ogTags?.description ??
-                                            "--",
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        textStyle:
-                                            theme!.textTheme.displayMedium,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 5,
-                                      right: 5,
-                                      child: GestureDetector(
+                    if (postDetails!.isRepost && showRepost)
+                      SliverToBoxAdapter(
+                        child: NovaRepostWidget(
+                          post: PostViewModel.fromPost(
+                              post: repostedPosts![postDetails!.attachments!
+                                  .first.attachmentMeta.entityId]!),
+                          user: user!,
+                        ),
+                      ),
+                    if (!showRepost)
+                      SliverToBoxAdapter(
+                        child: ValueListenableBuilder(
+                            valueListenable: rebuildAttachments,
+                            builder: (context, value, child) => ((attachments !=
+                                                null &&
+                                            attachments!.isNotEmpty) &&
+                                        mapIntToMediaType(attachments!
+                                                .first.attachmentType) ==
+                                            MediaType.link &&
+                                        showLinkPreview) ||
+                                    (linkModel != null && showLinkPreview)
+                                ? Stack(
+                                    children: [
+                                      LMLinkPreview(
+                                        linkModel: linkModel,
+                                        backgroundColor:
+                                            theme!.colorScheme.surface,
+                                        showLinkUrl: false,
                                         onTap: () {
-                                          showLinkPreview = false;
-                                          rebuildAttachments.value =
-                                              !rebuildAttachments.value;
+                                          launchUrl(
+                                            Uri.parse(
+                                                linkModel?.ogTags?.url ?? ''),
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          );
                                         },
-                                        child: const CloseButtonIcon(),
+                                        border: const Border(),
+                                        title: LMTextView(
+                                          text:
+                                              linkModel?.ogTags?.title ?? "--",
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textStyle:
+                                              theme!.textTheme.titleMedium,
+                                        ),
+                                        subtitle: LMTextView(
+                                          text:
+                                              linkModel?.ogTags?.description ??
+                                                  "--",
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          textStyle:
+                                              theme!.textTheme.displayMedium,
+                                        ),
                                       ),
-                                    )
-                                  ],
-                                )
-                              : const SizedBox()),
-                    ),
-                    if (attachments != null &&
+                                      Positioned(
+                                        top: 5,
+                                        right: 5,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            showLinkPreview = false;
+                                            rebuildAttachments.value =
+                                                !rebuildAttachments.value;
+                                          },
+                                          child: const CloseButtonIcon(),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                : const SizedBox()),
+                      ),
+                    if (!showRepost &&
+                        attachments != null &&
                         attachments!.isNotEmpty &&
                         mapIntToMediaType(attachments!.first.attachmentType) !=
                             MediaType.link)

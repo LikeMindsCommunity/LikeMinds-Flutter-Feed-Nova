@@ -11,7 +11,7 @@ class NewPostInitiate extends NewPostState {}
 
 class NewPostUploading extends NewPostState {
   final Stream<double> progress;
-  final MediaModel? thumbnailMedia;
+  final AttachmentPostViewData? thumbnailMedia;
 
   const NewPostUploading({required this.progress, this.thumbnailMedia});
 }
@@ -23,12 +23,14 @@ class NewPostUploaded extends NewPostState {
   final Map<String, User> userData;
   final Map<String, Topic> topics;
   final Map<String, WidgetModel> widgets;
+  final Map<String, Post> repostedPosts;
 
   const NewPostUploaded({
     required this.postData,
     required this.userData,
     required this.topics,
     required this.widgets,
+    required this.repostedPosts,
   });
 }
 
@@ -37,12 +39,14 @@ class EditPostUploaded extends NewPostState {
   final Map<String, User> userData;
   final Map<String, Topic> topics;
   final Map<String, WidgetModel> widgets;
+  final Map<String, Post> repostedPosts;
 
   const EditPostUploaded({
     required this.postData,
     required this.userData,
     required this.topics,
     required this.widgets,
+    required this.repostedPosts,
   });
 }
 

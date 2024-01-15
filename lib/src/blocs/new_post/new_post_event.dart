@@ -6,14 +6,16 @@ abstract class NewPostEvents extends Equatable {
 }
 
 class CreateNewPost extends NewPostEvents {
-  final List<MediaModel>? postMedia;
+  final List<AttachmentPostViewData>? postMedia;
   final String postText;
   final List<TopicUI> selectedTopics;
+  final bool isRepost;
 
   CreateNewPost({
     this.postMedia,
     required this.postText,
     required this.selectedTopics,
+    this.isRepost = false,
   });
 }
 
@@ -22,12 +24,14 @@ class EditPost extends NewPostEvents {
   final String postText;
   final String postId;
   final List<TopicUI> selectedTopics;
+  final bool isRepost;
 
   EditPost({
     required this.postText,
     this.attachments,
     required this.postId,
     required this.selectedTopics,
+    this.isRepost = false,
   });
 }
 
@@ -35,11 +39,13 @@ class DeletePost extends NewPostEvents {
   final String postId;
   final String reason;
   final int? feedRoomId;
+  final bool isRepost;
 
   DeletePost({
     required this.postId,
     required this.reason,
     this.feedRoomId,
+    required this.isRepost
   });
 
   @override

@@ -84,10 +84,10 @@ class PostMediaPicker {
     return [];
   }
 
-  static Future<List<MediaModel>?> pickVideos(int currentMediaLength) async {
+  static Future<List<AttachmentPostViewData>?> pickVideos(int currentMediaLength) async {
     try {
       // final XFile? pickedFile =
-      List<MediaModel> videoFiles = [];
+      List<AttachmentPostViewData> videoFiles = [];
       final FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(
         type: FileType.video,
         // allowedExtensions: videoExtentions,
@@ -122,7 +122,7 @@ class PostMediaPicker {
               );
               await controller.initialize();
               Duration videoDuration = controller.value.duration;
-              MediaModel videoFile = MediaModel(
+              AttachmentPostViewData videoFile = AttachmentPostViewData(
                 mediaType: MediaType.video,
                 mediaFile: video,
                 duration: videoDuration.inSeconds,
@@ -149,7 +149,7 @@ class PostMediaPicker {
     }
   }
 
-  static Future<List<MediaModel>?> pickDocuments(int currentMediaLength) async {
+  static Future<List<AttachmentPostViewData>?> pickDocuments(int currentMediaLength) async {
     try {
       final pickedFiles = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -167,7 +167,7 @@ class PostMediaPicker {
           );
           return null;
         }
-        List<MediaModel> attachedFiles = [];
+        List<AttachmentPostViewData> attachedFiles = [];
         for (var pickedFile in pickedFiles.files) {
           if (getFileSizeInDouble(pickedFile.size) > 100) {
             toast(
@@ -175,7 +175,7 @@ class PostMediaPicker {
               duration: Toast.LENGTH_LONG,
             );
           } else {
-            MediaModel videoFile = MediaModel(
+            AttachmentPostViewData videoFile = AttachmentPostViewData(
                 mediaType: MediaType.document,
                 mediaFile: File(pickedFile.path!),
                 format: pickedFile.extension,
