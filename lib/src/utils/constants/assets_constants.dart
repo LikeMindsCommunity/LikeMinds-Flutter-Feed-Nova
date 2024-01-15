@@ -30,6 +30,8 @@ const String kAssetSaveIcon =
     "packages/likeminds_feed_nova_fl/assets/icons/save.svg";
 const String kAssetMentionIcon =
     "packages/likeminds_feed_nova_fl/assets/icons/mention.svg";
+const String kAssetRepostIcon =
+    "packages/likeminds_feed_nova_fl/assets/icons/repost.svg";
 
 const List<String> svgAssets = [
   kAssetDocPDFIcon,
@@ -47,4 +49,5 @@ const List<String> svgAssets = [
   kAssetEditIcon,
   kAssetReportIcon,
   kAssetSaveIcon,
+  kAssetRepostIcon,
 ];

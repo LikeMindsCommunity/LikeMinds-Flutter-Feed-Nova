@@ -14,6 +14,7 @@ import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/views/likes/likes_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/media_preview.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
+import 'package:likeminds_feed_nova_fl/src/widgets/post/repost_widget.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -26,6 +27,8 @@ class NovaPostWidget extends StatefulWidget {
   final User user;
   final Map<String, Topic> topics;
   final Map<String, WidgetModel> widgets;
+  final Map<String, User> users;
+  final Map<String, Post> repostedPost;
   final bool isFeed;
   final Function() onTap;
   final Function(bool isDeleted) refresh;
@@ -45,6 +48,8 @@ class NovaPostWidget extends StatefulWidget {
     required this.isFeed,
     required this.onMenuTap,
     required this.widgets,
+    required this.users,
+    required this.repostedPost,
     this.expanded = false,
     this.showMenu = true,
     this.showCompanyDetails = true,
@@ -70,6 +75,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   Attachment? linkAttachment;
   VideoController? videoController;
+  PostViewModel? repostedPostData;
 
   @override
   void initState() {
@@ -92,6 +98,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     isPinned = postDetails!.isPinned;
     showCompanyDetails = widget.showCompanyDetails;
     widgets = widget.widgets;
+
     getCompanyDetails();
   }
 
@@ -114,6 +121,9 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     if (postDetails!.attachments == null || postDetails!.attachments!.isEmpty) {
       return false;
     }
+    // remove reposted post from attachments
+    postDetails?.attachments
+        ?.removeWhere((element) => element.attachmentType == 9);
     for (var attachment in attachemnts) {
       if (attachment.attachmentType != 5) {
         return true;
@@ -133,6 +143,28 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
       }
     }
     return false;
+  }
+
+  PostViewModel? postFromRepost(
+      PostViewModel originalPost, Map<String, Post> repostedPosts) {
+    if (repostedPosts[
+            originalPost.attachments!.first.attachmentMeta.entityId] !=
+        null) {
+          debugPrint('---------------${repostedPosts[originalPost.attachments!.first.attachmentMeta.entityId]!.isDeleted}--------');
+      return repostedPostData =  PostViewModel.fromPost(
+        post: repostedPosts[
+            originalPost.attachments!.first.attachmentMeta.entityId]!,
+      );
+       
+    } else {
+      return null;
+    }
+  }
+
+  User? getUser(PostViewModel originalPost, Map<String, Post> repostedPosts,
+      Map<String, User> users) {
+   
+    return users[repostedPostData?.userId];
   }
 
   @override
@@ -386,90 +418,22 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                       ? SizedBox(height: postDetails!.text.isEmpty ? 8.0 : 16.0)
                       : const SizedBox(),
                   checkAttachments(postDetails!.attachments!)
-                      ? checkForLinkPost()
-                          ? LMLinkPreview(
-                              attachment: linkAttachment,
-                              backgroundColor: theme.colorScheme.surface,
-                              errorWidget: Container(
-                                color: theme.colorScheme.surface,
-                                width: double.infinity,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    LMIcon(
-                                      type: LMIconType.icon,
-                                      icon: Icons.error_outline,
-                                      size: 24,
-                                      color: theme.colorScheme.onPrimary,
-                                    ),
-                                    kVerticalPaddingMedium,
-                                    Text("An error occurred fetching media",
-                                        style: theme.textTheme.labelSmall)
-                                  ],
-                                ),
-                              ),
-                              onTap: () {
-                                if (linkAttachment?.attachmentMeta.url !=
-                                    null) {
-                                  launchUrl(
-                                    Uri.parse(
-                                        linkAttachment!.attachmentMeta.url!),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                }
-                              },
-                              border: const Border(),
-                              title: LMTextView(
-                                text: linkAttachment
-                                        ?.attachmentMeta.ogTags?.title ??
-                                    "--",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textStyle: theme.textTheme.titleMedium,
-                              ),
-                              subtitle: LMTextView(
-                                text: linkAttachment
-                                        ?.attachmentMeta.ogTags?.description ??
-                                    "--",
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textStyle: theme.textTheme.displayMedium,
-                              ),
-                            )
-                          : SizedBox(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () async {
-                                  await videoController?.player.pause();
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return MediaPreview(
-                                          postAttachments:
-                                              postDetails!.attachments!,
-                                          post: postDetails!.toPost(),
-                                          user: widget.user,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                  await videoController?.player.play();
-                                },
-                                child: LMPostMedia(
-                                  initialiseVideoController:
-                                      (VideoController controller) {
-                                    videoController = controller;
-                                  },
-                                  attachments: postDetails!.attachments!,
-                                  borderRadius: 16.0,
-                                  height: screenSize.width - 32,
-                                  width: screenSize.width - 32,
-                                  boxFit: BoxFit.cover,
-                                  textColor: ColorTheme
-                                      .novaTheme.colorScheme.onPrimary,
+                      ? postDetails!.isRepost
+                          ? postFromRepost(postDetails!, widget.repostedPost) !=
+                                  null
+                              ? NovaRepostWidget(
+                                  post: repostedPostData!,
+                                  user: getUser(postDetails!,
+                                      widget.repostedPost, widget.users)!,
+                                )
+                              : SizedBox()
+                          : checkForLinkPost()
+                              ? LMLinkPreview(
+                                  attachment: linkAttachment,
+                                  backgroundColor: theme.colorScheme.surface,
                                   errorWidget: Container(
-                                    color: theme.colorScheme.background,
+                                    color: theme.colorScheme.surface,
+                                    width: double.infinity,
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -478,42 +442,125 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                           type: LMIconType.icon,
                                           icon: Icons.error_outline,
                                           size: 24,
-                                          color: theme
-                                              .colorScheme.onPrimaryContainer,
+                                          color: theme.colorScheme.onPrimary,
                                         ),
-                                        const SizedBox(height: 24),
+                                        kVerticalPaddingMedium,
                                         Text("An error occurred fetching media",
-                                            style: theme.textTheme.bodyMedium)
+                                            style: theme.textTheme.labelSmall)
                                       ],
                                     ),
                                   ),
-                                  backgroundColor: theme.colorScheme.surface,
-                                  showBorder: false,
-                                  carouselActiveIndicatorColor:
-                                      theme.colorScheme.primary,
-                                  carouselInactiveIndicatorColor: theme
-                                      .colorScheme.primary
-                                      .withOpacity(0.3),
-                                  documentIcon: Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: ShapeDecoration(
-                                      color: theme.colorScheme.primaryContainer,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4)),
-                                    ),
-                                    child: Center(
-                                      child: LMTextView(
-                                        text: 'PDF',
-                                        textStyle: theme.textTheme.titleLarge!
-                                            .copyWith(fontSize: 18),
+                                  onTap: () {
+                                    if (linkAttachment?.attachmentMeta.url !=
+                                        null) {
+                                      launchUrl(
+                                        Uri.parse(linkAttachment!
+                                            .attachmentMeta.url!),
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    }
+                                  },
+                                  border: const Border(),
+                                  title: LMTextView(
+                                    text: linkAttachment
+                                            ?.attachmentMeta.ogTags?.title ??
+                                        "--",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textStyle: theme.textTheme.titleMedium,
+                                  ),
+                                  subtitle: LMTextView(
+                                    text: linkAttachment?.attachmentMeta.ogTags
+                                            ?.description ??
+                                        "--",
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    textStyle: theme.textTheme.displayMedium,
+                                  ),
+                                )
+                              : SizedBox(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () async {
+                                      await videoController?.player.pause();
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return MediaPreview(
+                                              postAttachments:
+                                                  postDetails!.attachments!,
+                                              post: postDetails!.toPost(),
+                                              user: widget.user,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                      await videoController?.player.play();
+                                    },
+                                    child: LMPostMedia(
+                                      initialiseVideoController:
+                                          (VideoController controller) {
+                                        videoController = controller;
+                                      },
+                                      attachments: postDetails!.attachments!,
+                                      borderRadius: 16.0,
+                                      height: screenSize.width - 32,
+                                      width: screenSize.width - 32,
+                                      boxFit: BoxFit.cover,
+                                      textColor: ColorTheme
+                                          .novaTheme.colorScheme.onPrimary,
+                                      errorWidget: Container(
+                                        color: theme.colorScheme.background,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            LMIcon(
+                                              type: LMIconType.icon,
+                                              icon: Icons.error_outline,
+                                              size: 24,
+                                              color: theme.colorScheme
+                                                  .onPrimaryContainer,
+                                            ),
+                                            const SizedBox(height: 24),
+                                            Text(
+                                                "An error occurred fetching media",
+                                                style:
+                                                    theme.textTheme.bodyMedium)
+                                          ],
+                                        ),
+                                      ),
+                                      backgroundColor:
+                                          theme.colorScheme.surface,
+                                      showBorder: false,
+                                      carouselActiveIndicatorColor:
+                                          theme.colorScheme.primary,
+                                      carouselInactiveIndicatorColor: theme
+                                          .colorScheme.primary
+                                          .withOpacity(0.3),
+                                      documentIcon: Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: ShapeDecoration(
+                                          color: theme
+                                              .colorScheme.primaryContainer,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4)),
+                                        ),
+                                        child: Center(
+                                          child: LMTextView(
+                                            text: 'PDF',
+                                            textStyle: theme
+                                                .textTheme.titleLarge!
+                                                .copyWith(fontSize: 18),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            )
+                                )
                       : const SizedBox(),
                   kVerticalPaddingLarge,
                   LMPostFooter(
@@ -628,6 +675,44 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                           color: theme.colorScheme.onPrimary,
                           size: 20,
                         ),
+                      ),
+                      kHorizontalPaddingLarge,
+                      if(!widget.post.isRepost)
+                      LMTextButton(
+                        text: LMTextView(
+                          text: widget.post.repostCount == 0
+                              ? ""
+                              : widget.post.repostCount.toString(),
+                          textStyle: theme.textTheme.labelLarge?.copyWith(
+                            color: widget.post.isRepostedByUser
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                        icon: LMIcon(
+                          type: LMIconType.svg,
+                          assetPath: kAssetRepostIcon,
+                          color: widget.post.isRepostedByUser
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onPrimary,
+                          size: 20,
+                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => NewPostScreen(
+                                attachments: [
+                                  AttachmentPostViewData(
+                                    mediaType: MediaType.post,
+                                    post: widget.post.toPost(),
+                                    postId: widget.post.id,
+                                  )
+                                ],
+                                user: widget.user,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const Spacer(),
                       LMIconButton(

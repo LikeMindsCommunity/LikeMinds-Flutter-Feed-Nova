@@ -6,7 +6,7 @@ abstract class NewPostEvents extends Equatable {
 }
 
 class CreateNewPost extends NewPostEvents {
-  final List<MediaModel>? postMedia;
+  final List<AttachmentPostViewData>? postMedia;
   final String postText;
   final List<TopicUI> selectedTopics;
 
@@ -35,11 +35,13 @@ class DeletePost extends NewPostEvents {
   final String postId;
   final String reason;
   final int? feedRoomId;
+  final bool isRepost;
 
   DeletePost({
     required this.postId,
     required this.reason,
     this.feedRoomId,
+    required this.isRepost
   });
 
   @override
