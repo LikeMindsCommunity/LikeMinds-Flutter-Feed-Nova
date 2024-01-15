@@ -220,6 +220,8 @@ class _FeedScreenState extends State<FeedScreen> {
                         const SizedBox(height: 8),
                         NovaPostWidget(
                           post: item,
+                          users: feedResponse.users,
+                          repostedPost: feedResponse.repostedPosts,
                           user: feedResponse.users[item.userId]!,
                           topics: feedResponse.topics,
                           widgets: feedResponse.widgets,
@@ -253,6 +255,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                           newPostBloc.add(
                                             DeletePost(
                                               postId: item.id,
+                                              isRepost: false,
                                               reason: reason,
                                             ),
                                           );

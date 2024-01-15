@@ -862,6 +862,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       : NovaPostWidget(
                                           post: postData!,
                                           expanded: true,
+                                          users: postDetailResponse!.users!,
+                                          repostedPost: postDetailResponse!
+                                                  .repostedPosts ??
+                                              {},
                                           topics:
                                               postDetailResponse!.topics ?? {},
                                           widgets:
@@ -913,6 +917,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                                             DeletePost(
                                                               postId:
                                                                   postData!.id,
+                                                              isRepost:
+                                                                  postData!
+                                                                      .isRepost,
                                                               reason: reason,
                                                             ),
                                                           );
@@ -962,11 +969,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                             } else if (id == postEditId) {
                                               try {
                                                 String? postType;
-                                                postType = getPostType(postData!
-                                                        .attachments
-                                                        ?.first
-                                                        .attachmentType ??
-                                                    0);
+                                                if (postData!.attachments !=
+                                                        null &&
+                                                    postData!.attachments!
+                                                        .isNotEmpty) {
+                                                  postType = getPostType(
+                                                      postData!
+                                                          .attachments!
+                                                          .first
+                                                          .attachmentType);
+                                                } else {
+                                                  postType = getPostType(0);
+                                                }
                                                 LMAnalytics.get().track(
                                                   AnalyticsKeys.postEdited,
                                                   {

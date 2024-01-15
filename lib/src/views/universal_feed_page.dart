@@ -548,7 +548,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
   final ValueNotifier postSomethingNotifier = ValueNotifier(false);
   bool right = true;
 
-  Widget getLoaderThumbnail(MediaModel? media) {
+  Widget getLoaderThumbnail(AttachmentPostViewData? media) {
     if (media != null) {
       if (media.mediaType == MediaType.image) {
         return Container(
@@ -647,6 +647,20 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
             bloc: newPostBloc,
             listener: (prev, curr) {
               if (curr is PostDeleted) {
+                Post? repostedPost =
+                    widget.feedResponse.repostedPosts[curr.postId];
+
+                if (repostedPost != null) {
+                  PostViewData repostedPostViewData =
+                      PostViewData.fromPost(post: repostedPost);
+
+                  repostedPostViewData.isDeleted = true;
+
+                  widget.feedResponse.repostedPosts[curr.postId] =
+                      repostedPostViewData.toPost();
+
+                      // debugPrint('------------------${  widget.feedResponse.repostedPosts[curr.postId]?.isDeleted}-----');
+                }
                 List<PostViewModel>? universalFeedItemList =
                     widget.universalFeedPagingController.itemList;
                 universalFeedItemList
@@ -694,6 +708,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                 widget.feedResponse.users.addAll(curr.userData);
                 // widget.feedResponse.topics.addAll(curr.topics);
                 widget.feedResponse.widgets.addAll(curr.widgets);
+                widget.feedResponse.repostedPosts.addAll(curr.repostedPosts);
                 widget.universalFeedPagingController.itemList =
                     universalFeedItemList;
                 postUploading.value = false;
@@ -913,6 +928,9 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                 const SizedBox(height: 2),
                                 NovaPostWidget(
                                   post: item,
+                                  users: widget.feedResponse.users,
+                                  repostedPost:
+                                      widget.feedResponse.repostedPosts,
                                   topics: widget.feedResponse.topics,
                                   widgets: widget.feedResponse.widgets,
                                   user: widget.feedResponse.users[item.userId]!,
@@ -948,6 +966,7 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                                   newPostBloc.add(
                                                     DeletePost(
                                                       postId: item.id,
+                                                      isRepost: item.isRepost,
                                                       reason:
                                                           reason ?? 'Self Post',
                                                     ),
@@ -988,9 +1007,15 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                     } else if (id == postEditId) {
                                       try {
                                         String? postType;
-                                        postType = getPostType(item.attachments
-                                                ?.first.attachmentType ??
-                                            0);
+                                        if (item.attachments != null &&
+                                            item.attachments!.isNotEmpty) {
+                                          postType = getPostType(item
+                                              .attachments!
+                                              .first
+                                              .attachmentType);
+                                        } else {
+                                          postType = getPostType(0);
+                                        }
                                         LMAnalytics.get().track(
                                           AnalyticsKeys.postEdited,
                                           {

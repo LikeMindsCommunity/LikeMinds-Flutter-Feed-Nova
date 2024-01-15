@@ -34,6 +34,8 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
   Map<String, User> users = {};
   Map<String, Topic> topics = {};
   Map<String, WidgetModel> widgets = {};
+  Map<String, Post> repostedPosts = {};
+
   int _pageFeed = 1;
   final PagingController<int, PostViewModel> _pagingController =
       PagingController(firstPageKey: 1);
@@ -78,6 +80,9 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
       }
       if (response.widgets != null) {
         widgets.addAll(response.widgets!);
+      }
+      if (response.repostedPosts != null) {
+        repostedPosts.addAll(response.repostedPosts!);
       }
     } else {
       _pagingController.appendLastPage([]);
@@ -126,6 +131,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
           users.addAll(state.userData);
           topics.addAll(state.topics);
           widgets.addAll(state.widgets);
+          repostedPosts.addAll(state.repostedPosts);
           _pagingController.itemList = feedRoomItemList;
           rebuildPostWidget.value = !rebuildPostWidget.value;
         }
@@ -141,6 +147,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
           users.addAll(state.userData);
           topics.addAll(state.topics);
           widgets.addAll(state.widgets);
+          repostedPosts.addAll(state.repostedPosts);
           rebuildPostWidget.value = !rebuildPostWidget.value;
         }
 
@@ -174,8 +181,10 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                       NovaPostWidget(
                         post: item,
                         topics: topics,
+                        users: users,
                         showCompanyDetails: false,
                         widgets: widgets,
+                        repostedPost: repostedPosts,
                         user: users[item.userId]!,
                         onMenuTap: (int id) {
                           if (id == postDeleteId) {
@@ -207,6 +216,7 @@ class _UserFeedWidgetState extends State<UserFeedWidget> {
                                         newPostBloc.add(
                                           DeletePost(
                                             postId: item.id,
+                                            isRepost: item.isRepost,
                                             reason: reason ?? 'Self Post',
                                           ),
                                         );

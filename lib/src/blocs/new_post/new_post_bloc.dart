@@ -28,7 +28,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
 
   mapNewPostHandler(CreateNewPost event, Emitter<NewPostState> emit) async {
     try {
-      List<MediaModel>? postMedia = event.postMedia;
+      List<AttachmentPostViewData>? postMedia = event.postMedia;
       User user = UserLocalPreference.instance.fetchUserData();
       int imageCount = 0;
       int videoCount = 0;
@@ -48,13 +48,23 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
             thumbnailMedia: postMedia.isEmpty
                 ? null
                 : (postMedia[0].mediaType == MediaType.link ||
-                        postMedia[0].mediaType == MediaType.widget)
+                        postMedia[0].mediaType == MediaType.widget ||
+                        postMedia[0].mediaType == MediaType.post)
                     ? null
                     : postMedia[0],
           ),
         );
         for (final media in postMedia) {
-          if (media.mediaType == MediaType.widget) {
+          if (media.mediaType == MediaType.post) {
+            attachments.add(
+              Attachment(
+                attachmentType: 8,
+                attachmentMeta: AttachmentMeta(
+                  entityId: event.postMedia!.first.postId,
+                ),
+              ),
+            );
+          } else if (media.mediaType == MediaType.widget) {
             attachments.add(
               Attachment(
                 attachmentType: 5,
@@ -124,11 +134,14 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       }
       List<Topic> postTopics =
           event.selectedTopics.map((e) => e.toTopic()).toList();
-      final AddPostRequest request = (AddPostRequestBuilder()
-            ..text(event.postText)
-            ..attachments(attachments)
-            ..topics(postTopics))
-          .build();
+      final addPostRequestBuilder = AddPostRequestBuilder()
+        ..text(event.postText)
+        ..attachments(attachments)
+        ..topics(postTopics);
+      if (checkIfPostIsRepost(attachments)) {
+        addPostRequestBuilder.isRepost(true);
+      }
+      final AddPostRequest request = addPostRequestBuilder.build();
 
       final AddPostResponse response =
           await locator<LikeMindsService>().addPost(request);
@@ -160,10 +173,12 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
         );
         emit(
           NewPostUploaded(
-              postData: PostViewModel.fromPost(post: response.post!),
-              userData: response.user!,
-              widgets: response.widgets ?? <String, WidgetModel>{},
-              topics: response.topics ?? <String, Topic>{}),
+            postData: PostViewModel.fromPost(post: response.post!),
+            userData: response.user!,
+            widgets: response.widgets ?? <String, WidgetModel>{},
+            topics: response.topics ?? <String, Topic>{},
+            repostedPosts: response.repostedPosts ?? <String, Post>{},
+          ),
         );
       } else {
         emit(NewPostError(message: response.errorMessage!));
@@ -181,11 +196,16 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       List<Attachment>? attachments = event.attachments;
       String postText = event.postText;
 
+      bool isRepost = false;
+      if (attachments != null && attachments.isNotEmpty) {
+        isRepost = checkIfPostIsRepost(attachments);
+      }
       var response =
           await locator<LikeMindsService>().editPost((EditPostRequestBuilder()
                 ..attachments(attachments ?? [])
                 ..postId(event.postId)
-                ..postText(postText))
+                ..postText(postText)
+                ..isRepost(isRepost))
               .build());
 
       if (response.success) {
@@ -195,6 +215,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
             userData: response.user!,
             widgets: response.widgets ?? <String, WidgetModel>{},
             topics: response.topics ?? <String, Topic>{},
+            repostedPosts: response.repostedPosts ?? <String, Post>{},
           ),
         );
       } else {
@@ -218,7 +239,8 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
     final response = await locator<LikeMindsService>().deletePost(
       (DeletePostRequestBuilder()
             ..postId(event.postId)
-            ..deleteReason(event.reason))
+            ..deleteReason(event.reason)
+            ..isRepost(event.isRepost))
           .build(),
     );
 
@@ -262,5 +284,14 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           isPinned: !event.isPinned,
           postId: event.postId));
     }
+  }
+
+  bool checkIfPostIsRepost(List<Attachment> attachments) {
+    for (Attachment attachment in attachments) {
+      if (attachment.attachmentType == 8) {
+        return true;
+      }
+    }
+    return false;
   }
 }

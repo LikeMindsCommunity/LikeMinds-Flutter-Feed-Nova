@@ -36,6 +36,7 @@ class _CompanyFeedWidgetState extends State<CompanyFeedWidget> {
   Map<String, User> users = {};
   Map<String, Topic> topics = {};
   Map<String, WidgetModel> widgets = {};
+  Map<String, Post> repostedPosts = {};
   int _pageFeed = 1;
   final PagingController<int, PostViewModel> _pagingController =
       PagingController(firstPageKey: 1);
@@ -93,6 +94,7 @@ class _CompanyFeedWidgetState extends State<CompanyFeedWidget> {
       topics.addAll(response.topics);
       widgets.addAll(response.widgets);
       users.addAll(response.users);
+      repostedPosts.addAll(response.repostedPosts);
     }
   }
 
@@ -186,7 +188,9 @@ class _CompanyFeedWidgetState extends State<CompanyFeedWidget> {
                       NovaPostWidget(
                         post: item,
                         topics: topics,
+                        users: users,
                         widgets: widgets,
+                        repostedPost: repostedPosts,
                         user: users[item.userId]!,
                         onMenuTap: (int id) {
                           if (id == postDeleteId) {
@@ -216,6 +220,7 @@ class _CompanyFeedWidgetState extends State<CompanyFeedWidget> {
                                   newPostBloc.add(
                                     DeletePost(
                                       postId: item.id,
+                                      isRepost: item.isRepost,
                                       reason: reason ?? 'Self Post',
                                     ),
                                   );
