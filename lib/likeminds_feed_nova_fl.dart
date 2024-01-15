@@ -38,7 +38,7 @@ const prodFlag = !bool.fromEnvironment('DEBUG', defaultValue: true);
 //bool _initialURILinkHandled = false;
 
 // Current version of the package
-const String feedPackageVersion = "0.8.3";
+const String feedPackageVersion = "0.8.4";
 
 bool logsPushedOnAppStartup = false;
 
