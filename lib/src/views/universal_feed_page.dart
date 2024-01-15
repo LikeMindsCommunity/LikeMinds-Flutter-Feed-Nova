@@ -647,6 +647,20 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
             bloc: newPostBloc,
             listener: (prev, curr) {
               if (curr is PostDeleted) {
+                Post? repostedPost =
+                    widget.feedResponse.repostedPosts[curr.postId];
+
+                if (repostedPost != null) {
+                  PostViewData repostedPostViewData =
+                      PostViewData.fromPost(post: repostedPost);
+
+                  repostedPostViewData.isDeleted = true;
+
+                  widget.feedResponse.repostedPosts[curr.postId] =
+                      repostedPostViewData.toPost();
+
+                      // debugPrint('------------------${  widget.feedResponse.repostedPosts[curr.postId]?.isDeleted}-----');
+                }
                 List<PostViewModel>? universalFeedItemList =
                     widget.universalFeedPagingController.itemList;
                 universalFeedItemList
@@ -993,9 +1007,15 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                     } else if (id == postEditId) {
                                       try {
                                         String? postType;
-                                        postType = getPostType(item.attachments
-                                                ?.first.attachmentType ??
-                                            0);
+                                        if (item.attachments != null &&
+                                            item.attachments!.isNotEmpty) {
+                                          postType = getPostType(item
+                                              .attachments!
+                                              .first
+                                              .attachmentType);
+                                        } else {
+                                          postType = getPostType(0);
+                                        }
                                         LMAnalytics.get().track(
                                           AnalyticsKeys.postEdited,
                                           {

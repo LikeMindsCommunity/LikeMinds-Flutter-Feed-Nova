@@ -969,11 +969,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                             } else if (id == postEditId) {
                                               try {
                                                 String? postType;
-                                                postType = getPostType(postData!
-                                                        .attachments
-                                                        ?.first
-                                                        .attachmentType ??
-                                                    0);
+                                                if (postData!.attachments !=
+                                                        null &&
+                                                    postData!.attachments!
+                                                        .isNotEmpty) {
+                                                  postType = getPostType(
+                                                      postData!
+                                                          .attachments!
+                                                          .first
+                                                          .attachmentType);
+                                                } else {
+                                                  postType = getPostType(0);
+                                                }
                                                 LMAnalytics.get().track(
                                                   AnalyticsKeys.postEdited,
                                                   {

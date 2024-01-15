@@ -99,6 +99,13 @@ class _NovaRepostWidgetState extends State<NovaRepostWidget> {
   }
 
   @override
+  void didUpdateWidget (NovaRepostWidget oldWidget) {
+    setPostDetails();
+    super.didUpdateWidget(oldWidget);
+    
+  }
+
+  @override
   Widget build(BuildContext context) {
     ThemeData theme = ColorTheme.novaTheme;
     final screenSize = MediaQuery.of(context).size;

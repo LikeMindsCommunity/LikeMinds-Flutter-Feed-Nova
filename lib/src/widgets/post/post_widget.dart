@@ -98,6 +98,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     isPinned = postDetails!.isPinned;
     showCompanyDetails = widget.showCompanyDetails;
     widgets = widget.widgets;
+
     getCompanyDetails();
   }
 
@@ -149,10 +150,12 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     if (repostedPosts[
             originalPost.attachments!.first.attachmentMeta.entityId] !=
         null) {
+          debugPrint('---------------${repostedPosts[originalPost.attachments!.first.attachmentMeta.entityId]!.isDeleted}--------');
       return repostedPostData =  PostViewModel.fromPost(
         post: repostedPosts[
             originalPost.attachments!.first.attachmentMeta.entityId]!,
       );
+       
     } else {
       return null;
     }
@@ -423,7 +426,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                   user: getUser(postDetails!,
                                       widget.repostedPost, widget.users)!,
                                 )
-                              : const SizedBox()
+                              : SizedBox()
                           : checkForLinkPost()
                               ? LMLinkPreview(
                                   attachment: linkAttachment,

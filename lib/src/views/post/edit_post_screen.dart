@@ -422,7 +422,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     GetPostResponse response = snapshot.data!;
                     widgets = response.widgets;
                     if (response.success) {
-                      setPostData(response.post!, response.repostedPosts!);
+                      setPostData(response.post!, response.repostedPosts ?? {});
                       return postEditWidget();
                     } else {
                       return postErrorScreen(response.errorMessage!);
@@ -750,8 +750,9 @@ class _EditPostScreenState extends State<EditPostScreen> {
                           : SliverToBoxAdapter(
                               child: Builder(builder: (context) {
                                 List<Attachment> mediaList = [...attachments!];
-                                mediaList.removeWhere(
-                                    (element) => element.attachmentType == 5);
+                                mediaList.removeWhere((element) =>
+                                    element.attachmentType == 5 ||
+                                    element.attachmentType == 9);
                                 int mediaLength = mediaList.length;
                                 return Container(
                                   padding: const EdgeInsets.only(
