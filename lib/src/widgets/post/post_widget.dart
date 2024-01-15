@@ -677,6 +677,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                         ),
                       ),
                       kHorizontalPaddingLarge,
+                      if(!widget.post.isRepost)
                       LMTextButton(
                         text: LMTextView(
                           text: widget.post.repostCount == 0
@@ -697,10 +698,6 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                           size: 20,
                         ),
                         onTap: () {
-                          if (widget.post.isRepost) {
-                            toast("You can't repost an already reposted post");
-                            return;
-                          }
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => NewPostScreen(
