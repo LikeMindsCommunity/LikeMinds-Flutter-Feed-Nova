@@ -1,6 +1,6 @@
 name: likeminds_feed_nova_fl
 description: A new Flutter package project.
-version: 0.8.3
+version: 0.8.4
 publish_to: none
 homepage: "https://likeminds.community/"
 
@@ -35,7 +35,7 @@ dependencies:
   connectivity_plus:
   custom_pop_up_menu: ^1.2.4
   flutter_no_internet_widget: ^1.0.0+18-dev.1
-  extended_image: 8.1.1
+  extended_image: 8.1.0
   http:
   uni_links:
   media_kit: ^1.1.7 # Primary package.
@@ -52,13 +52,14 @@ dependencies:
   likeminds_feed_ui_fl:
     path: ../LikeMinds-Flutter-Feed-UI
 
-  likeminds_feed: 1.6.5
-  # path: ../LikeMinds-Flutter-Feed-SDK
+  likeminds_feed: 
+    1.6.7
+    # path: ../LikeMinds-Flutter-Feed-SDK
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -83,6 +84,7 @@ flutter:
     - packages/likeminds_feed_nova_fl/assets/icons/save.svg
     - packages/likeminds_feed_nova_fl/assets/icons/report.svg
     - packages/likeminds_feed_nova_fl/assets/icons/mention.svg
+    - packages/likeminds_feed_nova_fl/assets/icons/repost.svg
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages
