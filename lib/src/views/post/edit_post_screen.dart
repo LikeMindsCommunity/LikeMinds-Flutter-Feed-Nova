@@ -581,7 +581,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       postId: postId,
                       // TODO: uncomment code for topic feature
                       selectedTopics: const [], //selectedTopics,
-                      isRepost: postDetails!.isRepost,
                     ),
                   );
                   Navigator.of(context).pop();

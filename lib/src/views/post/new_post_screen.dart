@@ -31,13 +31,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 class NewPostScreen extends StatefulWidget {
   final CompanyUI? company;
-  final bool isRepost;
   final List<AttachmentPostViewData>? attachments;
   final User? user;
   const NewPostScreen({
     super.key,
     this.company,
-    this.isRepost = false,
     this.attachments,
     this.user,
   });
@@ -99,7 +97,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
     //           ..pageSize(20)
     //           ..isEnabled(true))
     //         .build());
-    isRepost = ValueNotifier(widget.isRepost);
+
+    isRepost = ValueNotifier(checkIfPostIsRepost());
     newPostBloc = locator<BlocService>().newPostBlocProvider;
     if (_focusNode.canRequestFocus) {
       _focusNode.requestFocus();
@@ -113,6 +112,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
       displayImageURL = user.imageUrl;
       creatorId = user.userUniqueId;
     }
+  }
+
+  bool checkIfPostIsRepost() {
+    if (widget.attachments != null) {
+      for (AttachmentPostViewData attachment in widget.attachments!) {
+        if (attachment.mediaType == MediaType.post) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   bool checkIfPostMediaIsAttached() {
@@ -645,35 +655,34 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             ),
                           ),
                         ),
-                      if (widget.isRepost)
-                        SliverToBoxAdapter(
-                          child: ValueListenableBuilder(
-                              valueListenable: isRepost,
-                              builder: (context, value, child) {
-                                return value
-                                    ? NovaRepostWidget(
-                                        post: PostViewModel.fromPost(
-                                            post: widget
-                                                .attachments!.first.post!),
-                                        user: widget.user!,
-                                        closeButton: () => LMIconButton(
-                                          icon: const LMIcon(
-                                            type: LMIconType.icon,
-                                            icon: Icons.close,
-                                            color: Colors.white,
-                                          ),
-                                          onTap: (val) {
-                                            isRepost.value = false;
-                                            rebuildPostButton.value =
-                                                !rebuildPostButton.value;
-                                            rebuildLinkPreview.value =
-                                                !rebuildLinkPreview.value;
-                                          },
+                      SliverToBoxAdapter(
+                        child: ValueListenableBuilder(
+                            valueListenable: isRepost,
+                            builder: (context, value, child) {
+                              return value
+                                  ? NovaRepostWidget(
+                                      post: PostViewModel.fromPost(
+                                          post:
+                                              widget.attachments!.first.post!),
+                                      user: widget.user!,
+                                      closeButton: () => LMIconButton(
+                                        icon: const LMIcon(
+                                          type: LMIconType.icon,
+                                          icon: Icons.close,
+                                          color: Colors.white,
                                         ),
-                                      )
-                                    : const SizedBox.shrink();
-                              }),
-                        ),
+                                        onTap: (val) {
+                                          isRepost.value = false;
+                                          rebuildPostButton.value =
+                                              !rebuildPostButton.value;
+                                          rebuildLinkPreview.value =
+                                              !rebuildLinkPreview.value;
+                                        },
+                                      ),
+                                    )
+                                  : const SizedBox.shrink();
+                            }),
+                      ),
                       SliverToBoxAdapter(
                         child: ValueListenableBuilder(
                           valueListenable: rebuildLinkPreview,
@@ -1042,7 +1051,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                               postMedia: postMedia,
                               // TODO Nova: Uncomment this when topic is enabled
                               selectedTopics: const [], //selectedTopic,
-                              isRepost: isRepost.value,
                             ),
                           );
                           Navigator.pop(context);

@@ -40,19 +40,8 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       StreamController<double> progress = StreamController<double>.broadcast();
       progress.add(0);
 
-      // check if repost and add postId as attachment
-      if (event.isRepost) {
-        attachments.add(
-          Attachment(
-            attachmentType: 8,
-            attachmentMeta: AttachmentMeta(
-              entityId: event.postMedia!.first.postId,
-            ),
-          ),
-        );
-      }
       // Upload post media to s3 and add links as Attachments
-      else if (postMedia != null && postMedia.isNotEmpty) {
+      if (postMedia != null && postMedia.isNotEmpty) {
         emit(
           NewPostUploading(
             progress: progress.stream,
@@ -66,7 +55,16 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           ),
         );
         for (final media in postMedia) {
-          if (media.mediaType == MediaType.widget) {
+          if (media.mediaType == MediaType.post) {
+            attachments.add(
+              Attachment(
+                attachmentType: 8,
+                attachmentMeta: AttachmentMeta(
+                  entityId: event.postMedia!.first.postId,
+                ),
+              ),
+            );
+          } else if (media.mediaType == MediaType.widget) {
             attachments.add(
               Attachment(
                 attachmentType: 5,
@@ -136,20 +134,14 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       }
       List<Topic> postTopics =
           event.selectedTopics.map((e) => e.toTopic()).toList();
-      final requestBuilder = AddPostRequestBuilder()
+      final addPostRequestBuilder = AddPostRequestBuilder()
         ..text(event.postText)
         ..attachments(attachments)
         ..topics(postTopics);
-      if (event.isRepost) {
-        requestBuilder.isRepost(event.isRepost);
+      if (checkIfPostIsRepost(attachments)) {
+        addPostRequestBuilder.isRepost(true);
       }
-      final AddPostRequest request = requestBuilder.build();
-
-      debugPrint(request.toString());
-      debugPrint(request.text.toString());
-      debugPrint(request.attachments?.length.toString());
-      // debugPrint(request.attachments?.first.attachmentType.toString());
-      // debugPrint(request.attachments?.first.attachmentMeta.postId.toString());
+      final AddPostRequest request = addPostRequestBuilder.build();
 
       final AddPostResponse response =
           await locator<LikeMindsService>().addPost(request);
@@ -204,13 +196,16 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       List<Attachment>? attachments = event.attachments;
       String postText = event.postText;
 
+      bool isRepost = false;
+      if (attachments != null && attachments.isNotEmpty) {
+        isRepost = checkIfPostIsRepost(attachments);
+      }
       var response =
           await locator<LikeMindsService>().editPost((EditPostRequestBuilder()
                 ..attachments(attachments ?? [])
                 ..postId(event.postId)
                 ..postText(postText)
-                ..isRepost(event.isRepost)
-                )
+                ..isRepost(isRepost))
               .build());
 
       if (response.success) {
@@ -245,8 +240,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       (DeletePostRequestBuilder()
             ..postId(event.postId)
             ..deleteReason(event.reason)
-            ..isRepost(event.isRepost)
-            )
+            ..isRepost(event.isRepost))
           .build(),
     );
 
@@ -290,5 +284,14 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           isPinned: !event.isPinned,
           postId: event.postId));
     }
+  }
+
+  bool checkIfPostIsRepost(List<Attachment> attachments) {
+    for (Attachment attachment in attachments) {
+      if (attachment.attachmentType == 8) {
+        return true;
+      }
+    }
+    return false;
   }
 }

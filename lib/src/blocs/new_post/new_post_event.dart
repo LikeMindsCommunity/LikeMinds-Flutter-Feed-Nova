@@ -9,13 +9,11 @@ class CreateNewPost extends NewPostEvents {
   final List<AttachmentPostViewData>? postMedia;
   final String postText;
   final List<TopicUI> selectedTopics;
-  final bool isRepost;
 
   CreateNewPost({
     this.postMedia,
     required this.postText,
     required this.selectedTopics,
-    this.isRepost = false,
   });
 }
 
@@ -24,14 +22,12 @@ class EditPost extends NewPostEvents {
   final String postText;
   final String postId;
   final List<TopicUI> selectedTopics;
-  final bool isRepost;
 
   EditPost({
     required this.postText,
     this.attachments,
     required this.postId,
     required this.selectedTopics,
-    this.isRepost = false,
   });
 }
 

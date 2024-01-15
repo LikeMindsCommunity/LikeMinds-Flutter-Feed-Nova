@@ -694,7 +694,6 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                 widget.feedResponse.users.addAll(curr.userData);
                 // widget.feedResponse.topics.addAll(curr.topics);
                 widget.feedResponse.widgets.addAll(curr.widgets);
-                debugPrint('------------${curr.repostedPosts.length}--------------------');
                 widget.feedResponse.repostedPosts.addAll(curr.repostedPosts);
                 widget.universalFeedPagingController.itemList =
                     universalFeedItemList;

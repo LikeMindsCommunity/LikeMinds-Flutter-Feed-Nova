@@ -75,6 +75,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   Attachment? linkAttachment;
   VideoController? videoController;
+  PostViewModel? repostedPostData;
 
   @override
   void initState() {
@@ -148,7 +149,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
     if (repostedPosts[
             originalPost.attachments!.first.attachmentMeta.entityId] !=
         null) {
-      return PostViewModel.fromPost(
+      return repostedPostData =  PostViewModel.fromPost(
         post: repostedPosts[
             originalPost.attachments!.first.attachmentMeta.entityId]!,
       );
@@ -159,8 +160,8 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
 
   User? getUser(PostViewModel originalPost, Map<String, Post> repostedPosts,
       Map<String, User> users) {
-    final repost = postFromRepost(originalPost, repostedPosts);
-    return users[repost?.userId];
+   
+    return users[repostedPostData?.userId];
   }
 
   @override
@@ -418,12 +419,11 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                           ? postFromRepost(postDetails!, widget.repostedPost) !=
                                   null
                               ? NovaRepostWidget(
-                                  post: postFromRepost(
-                                      postDetails!, widget.repostedPost)!,
+                                  post: repostedPostData!,
                                   user: getUser(postDetails!,
                                       widget.repostedPost, widget.users)!,
                                 )
-                              : SizedBox()
+                              : const SizedBox()
                           : checkForLinkPost()
                               ? LMLinkPreview(
                                   attachment: linkAttachment,
@@ -695,13 +695,12 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                         ),
                         onTap: () {
                           if (widget.post.isRepost) {
-                            toast("You cannot repost a repost");
+                            toast("You can't repost an already reposted post");
                             return;
                           }
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => NewPostScreen(
-                                isRepost: true,
                                 attachments: [
                                   AttachmentPostViewData(
                                     mediaType: MediaType.post,
