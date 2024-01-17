@@ -206,8 +206,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
     }
   }
 
-  void setPostData(Post post, Map<String, Post> repostedPosts) {
+  void setPostData(Post post, Map<String, Post> repostedPosts,
+      Map<String, WidgetModel>? widgets) {
     this.repostedPosts = repostedPosts;
+    this.widgets = widgets;
     if (postDetails == null) {
       postDetails = post;
       convertedPostText = TaggingHelper.convertRouteToTag(post.text);
@@ -422,7 +424,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     GetPostResponse response = snapshot.data!;
                     widgets = response.widgets;
                     if (response.success) {
-                      setPostData(response.post!, response.repostedPosts ?? {});
+                      setPostData(
+                        response.post!,
+                        response.repostedPosts ?? {},
+                        response.widgets,
+                      );
                       return postEditWidget();
                     } else {
                       return postErrorScreen(response.errorMessage!);
@@ -674,6 +680,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                               post: repostedPosts![postDetails!.attachments!
                                   .first.attachmentMeta.entityId]!),
                           user: user!,
+                          widgets: widgets,
                         ),
                       ),
                     if (!showRepost)

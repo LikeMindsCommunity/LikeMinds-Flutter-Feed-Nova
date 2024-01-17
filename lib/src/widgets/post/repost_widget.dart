@@ -16,7 +16,7 @@ class NovaRepostWidget extends StatefulWidget {
     required this.post,
     required this.user,
     this.expanded = false,
-    this.showCompanyDetails = false,
+    this.showCompanyDetails = true,
     this.widgets,
     this.closeButton,
   });
@@ -45,6 +45,7 @@ class _NovaRepostWidgetState extends State<NovaRepostWidget> {
   void setPostDetails() {
     postDetails = widget.post;
     showCompanyDetails = widget.showCompanyDetails;
+    widgets = widget.widgets;
     getCompanyDetails();
   }
 
@@ -52,11 +53,12 @@ class _NovaRepostWidgetState extends State<NovaRepostWidget> {
     for (Attachment attachment in widget.post.attachments ?? []) {
       if (attachment.attachmentType == 5) {
         final entityId = attachment.attachmentMeta.meta?['entity_id'];
+        debugPrint("widget: ${widget.widgets}");
         if (widgets != null && widgets!.containsKey(entityId)) {
           displayName = widgets![entityId]!.metadata['company_name'];
           displayUrl = widgets![entityId]!.metadata['company_image_url'];
           companyId = widgets![entityId]!.metadata['company_id'];
-          print("displayName: $displayName");
+          print("displayName at repost: $displayName");
         }
         break;
       }

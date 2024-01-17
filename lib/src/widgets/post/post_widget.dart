@@ -425,6 +425,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
                                   post: repostedPostData!,
                                   user: getUser(postDetails!,
                                       widget.repostedPost, widget.users)!,
+                                      widgets: widget.widgets,
                                 )
                               : SizedBox()
                           : checkForLinkPost()
