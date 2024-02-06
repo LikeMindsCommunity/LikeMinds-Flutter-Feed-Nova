@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+// import 'package:likeminds_feed_nova_fl/src/globals.dart';
 
 class NetworkConnectivity {
   NetworkConnectivity._();

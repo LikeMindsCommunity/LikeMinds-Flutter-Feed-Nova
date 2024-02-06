@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post/new_post_screen.dart';

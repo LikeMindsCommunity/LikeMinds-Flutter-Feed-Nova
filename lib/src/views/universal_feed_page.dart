@@ -13,6 +13,7 @@ import 'package:likeminds_feed_nova_fl/src/blocs/universal_feed/universal_feed_b
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
@@ -1060,14 +1061,14 @@ class _UniversalFeedViewState extends State<UniversalFeedView> {
                                     }
                                   },
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PostDetailScreen(
-                                          postId: item.id,
-                                        ),
-                                      ),
-                                    );
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) => PostDetailScreen(
+                                    //       postId: item.id,
+                                    //     ),
+                                    //   ),
+                                    // );
                                   },
                                   isFeed: true,
                                   refresh: (bool isDeleted) async {

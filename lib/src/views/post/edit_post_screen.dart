@@ -5,9 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_nova_fl/src/models/company_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post/post_composer_header.dart';
@@ -130,12 +134,12 @@ class _EditPostScreenState extends State<EditPostScreen> {
         linkModel = AttachmentPostViewData(
           mediaType: MediaType.link,
           link: previewLink,
-          ogTags: AttachmentMetaOgTags(
-            description: responseTags!.description,
-            image: responseTags.image,
-            title: responseTags.title,
-            url: responseTags.url,
-          ),
+          // ogTags: AttachmentMetaOgTags(
+          //   description: responseTags!.description,
+          //   image: responseTags.image,
+          //   title: responseTags.title,
+          //   url: responseTags.url,
+          // ),
         );
       }
       rebuildAttachments.value = !rebuildAttachments.value;
@@ -192,12 +196,12 @@ class _EditPostScreenState extends State<EditPostScreen> {
           attachmentType: 4,
           attachmentMeta: AttachmentMeta(
             url: linkModel?.link,
-            ogTags: AttachmentMetaOgTags(
-              description: linkModel?.ogTags?.description,
-              image: linkModel?.ogTags?.image,
-              title: linkModel?.ogTags?.title,
-              url: linkModel?.ogTags?.url,
-            ),
+            // ogTags: AttachmentMetaOgTags(
+            //   description: linkModel?.ogTags?.description,
+            //   image: linkModel?.ogTags?.image,
+            //   title: linkModel?.ogTags?.title,
+            //   url: linkModel?.ogTags?.url,
+            // ),
           ),
         ),
       ];

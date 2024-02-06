@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+import 'package:likeminds_feed_nova_fl/src/models/feed/setup_feed_request.dart';
+import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/navigation_service.dart';
 
 final GetIt locator = GetIt.I;
 

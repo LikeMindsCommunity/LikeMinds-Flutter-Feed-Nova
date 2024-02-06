@@ -6,10 +6,14 @@ import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/universal_feed/universal_feed_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post/edit_post_screen.dart';
+import 'package:likeminds_feed_nova_fl/src/views/post/new_post_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/report_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/widgets/delete_dialog.dart';
@@ -338,14 +342,14 @@ class _FeedScreenState extends State<FeedScreen> {
                             }
                           },
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PostDetailScreen(
-                                  postId: item.id,
-                                ),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => PostDetailScreen(
+                            //       postId: item.id,
+                            //     ),
+                            //   ),
+                            // );
                           },
                           isFeed: true,
                           refresh: (bool isDeleted) async {

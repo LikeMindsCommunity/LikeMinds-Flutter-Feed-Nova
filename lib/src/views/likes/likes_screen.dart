@@ -3,6 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/post/likes/likes_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/simple_bloc_observer.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
@@ -37,7 +38,7 @@ class _LikesScreenState extends State<LikesScreen> {
   final PagingController<int, Like> _pagingControllerLikes =
       PagingController(firstPageKey: 1);
 
-  final PagingController<int, CommentLike> _pagingControllerCommentLikes =
+  final PagingController<int, LMLikeViewData> _pagingControllerCommentLikes =
       PagingController(firstPageKey: 1);
 
   void _addPaginationListener() {
@@ -116,15 +117,15 @@ class _LikesScreenState extends State<LikesScreen> {
     }
     if (state is CommentLikesLoaded) {
       _offset += 1;
-      if (state.response.commentLikes!.length < 10) {
-        userData.addAll(state.response.users ?? {});
-        _pagingControllerCommentLikes
-            .appendLastPage(state.response.commentLikes ?? []);
-      } else {
-        userData.addAll(state.response.users ?? {});
-        _pagingControllerCommentLikes.appendPage(
-            state.response.commentLikes!, _offset);
-      }
+      // if (state.response.commentLikes!.length < 10) {
+      //   userData.addAll(state.response.users ?? {});
+      //   _pagingControllerCommentLikes
+      //       .appendLastPage(state.response.commentLikes ?? []);
+      // } else {
+      //   userData.addAll(state.response.users ?? {});
+      //   _pagingControllerCommentLikes.appendPage(
+      //       state.response.commentLikes!, _offset);
+      // }
     }
   }
 
@@ -229,7 +230,7 @@ class _LikesScreenState extends State<LikesScreen> {
           child: PagedListView(
             padding: EdgeInsets.zero,
             pagingController: _pagingControllerCommentLikes,
-            builderDelegate: PagedChildBuilderDelegate<CommentLike>(
+            builderDelegate: PagedChildBuilderDelegate<LMLikeViewData>(
               noMoreItemsIndicatorBuilder: (context) => const SizedBox(
                 height: 20,
               ),

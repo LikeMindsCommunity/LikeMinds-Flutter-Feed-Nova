@@ -5,14 +5,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_nova_fl/src/models/company_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
+import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_action_id.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/post/post_utils.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/share/share_post.dart';
 import 'package:likeminds_feed_nova_fl/src/views/likes/likes_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/media_preview.dart';
+import 'package:likeminds_feed_nova_fl/src/views/post/new_post_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_nova_fl/src/widgets/post/repost_widget.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
@@ -171,7 +176,7 @@ class _NovaPostWidgetState extends State<NovaPostWidget> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     NewPostBloc newPostBloc = locator<BlocService>().newPostBlocProvider;
-    timeago.setLocaleMessages('en', SSCustomMessages());
+    timeago.setLocaleMessages('en', NovaCustomMessages());
     ThemeData theme = ColorTheme.novaTheme;
     return InheritedPostProvider(
       post: PostViewData.fromPost(post: widget.post.toPost()),

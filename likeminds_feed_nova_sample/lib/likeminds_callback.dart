@@ -40,8 +40,8 @@ class LikeMindsCallback implements LMSDKCallback {
   void profileRouteCallback({required String lmUserId}) {
     print("LM User ID caught in callback : $lmUserId");
     if (navigatorKey.currentState != null) {
-      navigatorKey.currentState!
-          .push(MaterialPageRoute(builder: (context) => const ProfileScreen()));
+      // navigatorKey.currentState!
+      //     .push(MaterialPageRoute(builder: (context) =>  ProfileScreen()));
     }
   }
 

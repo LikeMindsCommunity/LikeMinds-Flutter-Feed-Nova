@@ -4,11 +4,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/comment_replies/comment_replies_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/blocs/comment/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/icons.dart';
@@ -20,7 +23,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class CommentReplyWidget extends StatefulWidget {
   final String postId;
-  final Reply reply;
+  final LMCommentViewData reply;
   final User user;
   final Function() refresh;
   final Function(String commentId, String username) onReply;
@@ -44,13 +47,13 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
   ValueNotifier<bool> rebuildLikeButton = ValueNotifier(false);
   ValueNotifier<bool> rebuildReplyList = ValueNotifier(false);
   ValueNotifier<bool> rebuildReplyButton = ValueNotifier(false);
-  List<CommentReply> replies = [];
+  List<LMCommentViewData> replies = [];
   Map<String, User> users = {};
   List<Widget> repliesW = [];
   ThemeData? theme;
   Size? screenSize;
 
-  Reply? reply;
+  LMCommentViewData? reply;
   late final User user;
   late final String postId;
   Function()? refresh;
@@ -77,7 +80,7 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
   int page = 1;
 
   List<Widget> mapRepliesToWidget(
-      List<CommentReply> replies, Map<String, User> users) {
+      List<LMCommentViewData> replies, Map<String, User> users) {
     ToggleLikeCommentBloc toggleLikeCommentBloc =
         BlocProvider.of<ToggleLikeCommentBloc>(context);
     ThemeData theme = ColorTheme.novaTheme;
@@ -87,7 +90,7 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
         return Align(
           alignment: Alignment.topRight,
           child: LMReplyTile(
-              comment: element,
+              comment: LMCommentViewDataConvertor.toComment(element),
               textStyle: theme.textTheme.labelMedium,
               linkStyle: theme.textTheme.labelMedium!
                   .copyWith(color: ColorTheme.primaryColor),
@@ -357,11 +360,11 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
               }
 
               if (state is CommentRepliesLoaded) {
-                replies = state.commentDetails.postReplies!.replies;
+                // replies = state.commentDetails.postReplies!.replies;
                 users = state.commentDetails.users!;
                 users.putIfAbsent(user.userUniqueId, () => user);
               } else if (state is PaginatedCommentRepliesLoading) {
-                replies = state.prevCommentDetails.postReplies!.replies;
+                // replies = state.prevCommentDetails.postReplies!.replies;
                 users = state.prevCommentDetails.users!;
                 users.putIfAbsent(user.userUniqueId, () => user);
               }
@@ -428,7 +431,7 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
                   if (state is AddCommentReplySuccess &&
                       state.addCommentResponse.reply!.parentComment!.id ==
                           reply!.id) {
-                    replies.insert(0, state.addCommentResponse.reply!);
+                    // replies.insert(0, state.addCommentResponse.reply!);
 
                     repliesW = mapRepliesToWidget(replies, users);
 
@@ -479,7 +482,7 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
                     int index = replies.indexWhere((element) =>
                         element.id == state.editCommentReplyResponse.reply!.id);
                     if (index != -1) {
-                      replies[index] = state.editCommentReplyResponse.reply!;
+                      // replies[index] = state.editCommentReplyResponse.reply!;
 
                       repliesW = mapRepliesToWidget(replies, users);
 
@@ -602,11 +605,11 @@ class _CommentReplyWidgetState extends State<CommentReplyWidget> {
             return Container();
           }),
           listener: (context, state) {
-            List<CommentReply> replies = [];
+            List<LMCommentViewData> replies = [];
             if (state is CommentRepliesLoaded) {
-              replies = state.commentDetails.postReplies!.replies;
+              // replies = state.commentDetails.postReplies!.replies;
             } else if (state is PaginatedCommentRepliesLoading) {
-              replies = state.prevCommentDetails.postReplies!.replies;
+              // replies = state.prevCommentDetails.postReplies!.replies;
             }
             replyCount = replies.length;
             rebuildReplyButton.value = !rebuildReplyButton.value;

@@ -3,6 +3,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/views/media_preview.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';

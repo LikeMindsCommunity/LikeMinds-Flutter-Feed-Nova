@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
-import 'package:likeminds_feed_nova_sample/user_local_preference.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
 
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
@@ -39,11 +37,35 @@ class _CompanyScreenState extends State<CompanyScreen> {
         child: FloatingActionButton(
             backgroundColor: ColorTheme.primaryColor,
             child: const Icon(Icons.add),
-            onPressed: () {
+            onPressed: () async {
+              GetWidgetRequest request = (GetWidgetRequestBuilder()
+                    ..page(1)
+                    ..pageSize(10)
+                    //todo: check for quotes
+                    ..searchKey("metadata.company_id")
+                    ..searchValue(dummyCompany.id))
+                  .build();
+              GetWidgetResponse response =
+                  await LMFeedCore.client.getWidgets(request);
+              Map<String, dynamic> meta = dummyCompany.toJson();
+              if (response.success) {
+                String? id = response.widgets?.first.id;
+                meta['entity_id'] = id;
+              }
+              LMAttachmentViewData attachmentViewData =
+                  (LMAttachmentViewDataBuilder()
+                        ..attachmentType(5)
+                        ..attachmentMeta((LMAttachmentMetaViewDataBuilder()
+                              ..meta(meta))
+                            .build()))
+                      .build();
+              // ignore: use_build_context_synchronously
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => NewPostScreen(
-                    company: dummyCompany,
+                  builder: (context) => LMFeedComposeScreen(
+                    displayName: dummyCompany.name,
+                    displayUrl: dummyCompany.imageUrl,
+                    attachments: [attachmentViewData],
                   ),
                 ),
               );
@@ -92,8 +114,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
               ),
             ),
           ),
-          CompanyFeedWidget(
+          NovaLMFeedCompanyFeedWidget(
             companyId: dummyCompany.id,
+            postBuilder: (context, postWidget, postViewData) {
+              return novaPostBuilder(context, postWidget, postViewData, true);
+            },
           ),
         ],
       ),

@@ -9,6 +9,7 @@ import 'package:likeminds_feed_nova_fl/src/blocs/new_post/new_post_bloc.dart';
 import 'package:likeminds_feed_nova_fl/src/models/post/post_view_model.dart';
 import 'package:likeminds_feed_nova_fl/src/services/bloc_service.dart';
 import 'package:likeminds_feed_nova_fl/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_nova_fl/src/services/service_locator.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/constants/ui_constants.dart';
 import 'package:likeminds_feed_nova_fl/src/views/post_detail_screen.dart';
@@ -340,16 +341,16 @@ class _MediaPreviewState extends State<MediaPreview> {
                                       ),
                                       margin: 0,
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                PostDetailScreen(
-                                              postId: post!.id,
-                                              fromCommentButton: true,
-                                            ),
-                                          ),
-                                        );
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) =>
+                                        //         PostDetailScreen(
+                                        //       postId: post!.id,
+                                        //       fromCommentButton: true,
+                                        //     ),
+                                        //   ),
+                                        // );
                                       },
                                       icon: LMIcon(
                                         type: LMIconType.svg,

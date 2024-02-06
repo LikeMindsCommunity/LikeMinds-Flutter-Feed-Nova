@@ -34,33 +34,33 @@ class CommentRepliesBloc
       required bool forLoadMore,
       required Emitter<CommentRepliesState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    Map<String, User> users = {};
-    List<CommentReply> comments = [];
-    if (state is CommentRepliesLoaded &&
-        forLoadMore &&
-        commentDetailRequest.commentId ==
-            (state as CommentRepliesLoaded).commentId) {
-      comments =
-          (state as CommentRepliesLoaded).commentDetails.postReplies!.replies;
-      users = (state as CommentRepliesLoaded).commentDetails.users!;
-      emit(PaginatedCommentRepliesLoading(
-          commentId: commentDetailRequest.commentId,
-          prevCommentDetails: (state as CommentRepliesLoaded).commentDetails));
-    } else {
-      emit(CommentRepliesLoading(commentId: commentDetailRequest.commentId));
-    }
+    // Map<String, User> users = {};
+    // List<CommentReply> comments = [];
+    // if (state is CommentRepliesLoaded &&
+    //     forLoadMore &&
+    //     commentDetailRequest.commentId ==
+    //         (state as CommentRepliesLoaded).commentId) {
+    //   comments =
+    //       (state as CommentRepliesLoaded).commentDetails.postReplies!.replies;
+    //   users = (state as CommentRepliesLoaded).commentDetails.users!;
+    //   emit(PaginatedCommentRepliesLoading(
+    //       commentId: commentDetailRequest.commentId,
+    //       prevCommentDetails: (state as CommentRepliesLoaded).commentDetails));
+    // } else {
+    //   emit(CommentRepliesLoading(commentId: commentDetailRequest.commentId));
+    // }
 
-    GetCommentResponse response =
-        await lmService.getComment(commentDetailRequest);
-    if (!response.success) {
-      emit(const CommentRepliesError(message: "An error occurred"));
-    } else {
-      response.postReplies!.replies.insertAll(0, comments);
-      response.users!.addAll(users);
-      emit(CommentRepliesLoaded(
-          commentDetails: response,
-          commentId: commentDetailRequest.commentId,
-          hasReachedMax: response.postReplies!.replies.isEmpty));
-    }
+    // GetCommentResponse response =
+    //     await lmService.getComment(commentDetailRequest);
+    // if (!response.success) {
+    //   emit(const CommentRepliesError(message: "An error occurred"));
+    // } else {
+    //   response.postReplies!.replies?.insertAll(0, comments);
+    //   response.users!.addAll(users);
+    //   emit(CommentRepliesLoaded(
+    //       commentDetails: response,
+    //       commentId: commentDetailRequest.commentId,
+    //       hasReachedMax: response.postReplies!.replies.isEmpty));
+    // }
   }
 }

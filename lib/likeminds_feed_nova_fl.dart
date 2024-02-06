@@ -32,6 +32,10 @@ export 'src/widgets/feed/company_feed_widget.dart';
 export 'src/models/company_view_model.dart';
 export 'src/views/post/new_post_screen.dart';
 export 'src/models/feed/setup_feed_request.dart';
+export 'src/app.dart';
+export 'src/revamp/theme.dart';
+export 'src/revamp/widget/company_feed.dart';
+export 'src/revamp/builder/post/post_builder.dart';
 
 /// Flutter environment manager v0.0.1
 const prodFlag = !bool.fromEnvironment('DEBUG', defaultValue: true);
@@ -222,7 +226,7 @@ class _LMFeedState extends State<LMFeed> {
                 if (snapshot.hasData) {
                   InitiateUserResponse response = snapshot.data;
                   if (response.success) {
-                    user = response.initiateUser?.user;
+                    user = response.user;
 
                     //Get community configurations
                     locator<LikeMindsService>().getCommunityConfigurations();

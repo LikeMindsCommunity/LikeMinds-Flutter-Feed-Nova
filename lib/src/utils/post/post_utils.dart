@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:timeago/timeago.dart';
 
-class SSCustomMessages implements LookupMessages {
+class NovaCustomMessages implements LookupMessages {
   @override
   String prefixAgo() => '';
   @override

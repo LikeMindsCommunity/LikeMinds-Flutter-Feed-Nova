@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
+import 'package:likeminds_feed_nova_fl/src/models/feed/setup_feed_request.dart';
 import 'package:likeminds_feed_nova_fl/src/services/media_service.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/credentials/credentials.dart';
 import 'package:likeminds_feed_nova_fl/src/utils/local_preference/user_local_preference.dart';
@@ -140,10 +141,10 @@ class LikeMindsService implements ILikeMindsService {
     if (response.success) {
       await UserLocalPreference.instance
           .setUserDataFromInitiateUserResponse(response);
-      if (!logsPushedOnAppStartup) {
-        logsPushedOnAppStartup = true;
-        LMFeedLogger.instance.flushLogs();
-      }
+      // if (!logsPushedOnAppStartup) {
+      //   logsPushedOnAppStartup = true;
+      //   LMFeedLogger.instance.flushLogs();
+      // }
     }
 
     return response;
