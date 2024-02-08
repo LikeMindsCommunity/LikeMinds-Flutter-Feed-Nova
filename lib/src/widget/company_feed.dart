@@ -8,7 +8,7 @@ import 'package:likeminds_feed_flutter_core/src/utils/persistence/user_local_pre
 import 'package:likeminds_feed_flutter_core/src/utils/typedefs.dart';
 import 'package:likeminds_feed_flutter_core/src/views/media/media_preview_screen.dart';
 import 'package:likeminds_feed_flutter_core/src/views/post/widgets/delete_dialog.dart';
-import 'package:likeminds_feed_nova_fl/src/revamp/model/company_view_data.dart';
+import 'package:likeminds_feed_nova_fl/src/model/company_view_data.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -116,22 +116,34 @@ class _NovaLMFeedCompanyFeedWidgetState
   void updatePagingControllers(GetFeedResponse? response) {
     if (response != null) {
       _pageFeed++;
-      topics.addAll(response.topics.map((key, value) => MapEntry(
-            key,
-            LMTopicViewDataConvertor.fromTopic(value),
-          )));
-      widgets.addAll(response.widgets);
-      users.addAll(
-        response.users.map((key, value) => MapEntry(
+      if (response.topics != null) {
+        topics.addAll(response.topics!.map((key, value) => MapEntry(
               key,
-              LMUserViewDataConvertor.fromUser(value),
-            )),
-      );
-      repostedPosts.addAll(response.repostedPosts);
-      List<LMPostViewData> listOfPosts = response.posts
+              LMTopicViewDataConvertor.fromTopic(value),
+            )));
+      }
+      if (response.widgets != null) {
+        widgets.addAll(response.widgets!);
+      }
+      if (response.users != null) {
+        users.addAll(
+          response.users!.map((key, value) => MapEntry(
+                key,
+                LMUserViewDataConvertor.fromUser(value),
+              )),
+        );
+      }
+      if (response.repostedPosts != null) {
+        repostedPosts.addAll(response.repostedPosts!);
+      }
+      List<LMPostViewData> listOfPosts = response.posts!
           .map((e) => LMPostViewDataConvertor.fromPost(
                 post: e,
                 widgets: widgets,
+                users: users.map((key, value) =>
+                    MapEntry(key, LMUserViewDataConvertor.toUser(value))),
+                topics: topics.map((key, value) =>
+                    MapEntry(key, LMTopicViewDataConvertor.toTopic(value))),
               ))
           .toList();
       if (listOfPosts.length < 10) {
@@ -265,7 +277,7 @@ class _NovaLMFeedCompanyFeedWidgetState
             color: Colors.black,
             borderRadius: BorderRadius.circular(6.0),
           ),
-          child: LMFeedPostImage(
+          child: LMFeedImage(
             imageFile: media.mediaFile!,
             style: const LMFeedPostImageStyle(
               boxFit: BoxFit.contain,
@@ -294,7 +306,7 @@ class _NovaLMFeedCompanyFeedWidgetState
       LMFeedThemeData? feedThemeData, LMPostViewData post) {
     return LMFeedPostWidget(
       post: post,
-      topics: topics,
+      topics: post.topics,
       user: users[post.userId]!,
       isFeed: false,
       onTagTap: (String userId) {
@@ -354,7 +366,7 @@ class _NovaLMFeedCompanyFeedWidgetState
 
   LMFeedPostTopic _defTopicWidget(LMPostViewData post) {
     return LMFeedPostTopic(
-      topics: topics,
+      topics: post.topics,
       post: post,
       style: feedThemeData?.topicStyle,
     );

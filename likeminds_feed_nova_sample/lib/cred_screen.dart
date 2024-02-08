@@ -53,7 +53,6 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
-  LMFeed? lmFeed;
   String? userId;
   StreamSubscription? _streamSubscription;
   late final AppLifecycleListener _listener;
@@ -92,41 +91,89 @@ class _CredScreenState extends State<CredScreen> {
         // You can extract any parameters from the initialLink object here
         // and use them to navigate to a specific screen in your app
         debugPrint('Received initial deep link: $initialLink');
+        final uriLink = Uri.parse(initialLink);
+        if (uriLink.isAbsolute) {
+          if (uriLink.path == '/post') {
+            List secondPathSegment = initialLink.split('post_id=');
+            if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
+              String postId = secondPathSegment[1];
 
-        // TODO: add api key to the DeepLinkRequest
-        // TODO: add user id and user name of logged in user
-        SharePost().parseDeepLink((DeepLinkRequestBuilder()
-              // Add your api key here
-              ..apiKey(debug ? CredsDev.apiKey : CredsProd.apiKey)
-              ..isGuest(false)
-              ..link(initialLink)
-              // Add user name here
-              ..userName("Test User")
-              // Add user id here
-              ..userUniqueId('Test User Id'))
-            .build());
+              // Call initiate user if not called already
+              // It is recommened to call initiate user with your login flow
+              // so that navigation works seemlessly
+              InitiateUserResponse response = await LMFeedCore.instance
+                  .initiateUser((InitiateUserRequestBuilder()
+                        ..userId(userId ?? "Test-User-Id")
+                        ..userName("Test User"))
+                      .build());
+
+              if (response.success) {
+                // Replace the below code
+                // if you wanna navigate to your screen
+                // Either navigatorKey or context must be provided
+                // for the navigation to work
+                // if both are null an exception will be thrown
+                navigateToLMPostDetailsScreen(
+                  postId,
+                  navigatorKey: navigatorKey,
+                );
+              }
+            }
+          } else if (uriLink.path == '/post/create') {
+            navigatorKey.currentState!.pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const LMFeedComposeScreen(),
+              ),
+            );
+          }
+        }
       }
 
       // Subscribe to link changes
       _streamSubscription = linkStream.listen((String? link) async {
         if (link != null) {
+          initialURILinkHandled = true;
           // Handle the deep link
           // You can extract any parameters from the uri object here
           // and use them to navigate to a specific screen in your app
           debugPrint('Received deep link: $link');
-
           // TODO: add api key to the DeepLinkRequest
           // TODO: add user id and user name of logged in user
-          SharePost().parseDeepLink((DeepLinkRequestBuilder()
-                // Add your api key here
-                ..apiKey(debug ? CredsDev.apiKey : CredsProd.apiKey)
-                ..isGuest(false)
-                ..link(link)
-                // Add user name here
-                ..userName("Test User")
-                // Add user id here
-                ..userUniqueId('Test User Id'))
-              .build());
+
+          final uriLink = Uri.parse(link);
+          if (uriLink.isAbsolute) {
+            if (uriLink.path == '/post') {
+              List secondPathSegment = link.split('post_id=');
+              if (secondPathSegment.length > 1 &&
+                  secondPathSegment[1] != null) {
+                String postId = secondPathSegment[1];
+
+                InitiateUserResponse response = await LMFeedCore.instance
+                    .initiateUser((InitiateUserRequestBuilder()
+                          ..userId(userId ?? "Test-User-Id")
+                          ..userName("Test User"))
+                        .build());
+
+                if (response.success) {
+                  // Replace the below code
+                  // if you wanna navigate to your screen
+                  // Either navigatorKey or context must be provided
+                  // for the navigation to work
+                  // if both are null an exception will be thrown
+                  navigateToLMPostDetailsScreen(
+                    postId,
+                    navigatorKey: navigatorKey,
+                  );
+                }
+              }
+            } else if (uriLink.path == '/post/create') {
+              navigatorKey.currentState!.push(
+                MaterialPageRoute(
+                  builder: (context) => const LMFeedComposeScreen(),
+                ),
+              );
+            }
+          }
         }
       }, onError: (err) {
         // Handle exception by warning the user their action did not succeed

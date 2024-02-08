@@ -10,6 +10,15 @@ class LMCompanyViewData {
     this.imageUrl,
     this.description,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'imageUrl': imageUrl,
+      'description': description,
+    };
+  }
 }
 
 class LMCompanyViewDataBuilder {

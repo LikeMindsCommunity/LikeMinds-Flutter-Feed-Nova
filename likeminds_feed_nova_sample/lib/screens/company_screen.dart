@@ -10,14 +10,14 @@ class CompanyScreen extends StatefulWidget {
 }
 
 class _CompanyScreenState extends State<CompanyScreen> {
-  CompanyUI dummyCompany = CompanyUI(
-    id: "123456789",
-    name: "Apple",
-    imageUrl:
-        "https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png?202208080158",
-    description:
-        "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment and expert",
-  );
+  LMCompanyViewData dummyCompany = (LMCompanyViewDataBuilder()
+        ..id('123456789')
+        ..name('Apple')
+        ..imageUrl(
+            'https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png?202208080158')
+        ..description(
+            'Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment and expert'))
+      .build();
 
   @override
   void initState() {
@@ -41,7 +41,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
               GetWidgetRequest request = (GetWidgetRequestBuilder()
                     ..page(1)
                     ..pageSize(10)
-                    //todo: check for quotes
                     ..searchKey("metadata.company_id")
                     ..searchValue(dummyCompany.id))
                   .build();
@@ -79,7 +78,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
             child: Center(
               child: CircleAvatar(
                 radius: 70,
-                backgroundImage: NetworkImage(dummyCompany.imageUrl),
+                backgroundImage: NetworkImage(dummyCompany.imageUrl ?? ''),
               ),
             ),
           ),
@@ -88,7 +87,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Center(
                 child: Text(
-                  dummyCompany.name,
+                  dummyCompany.name ?? '',
                   style: const TextStyle(
                     fontSize: 28,
                     fontFamily: 'Gantari',
@@ -105,7 +104,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                dummyCompany.description,
+                dummyCompany.description ?? '',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: ColorTheme.lightWhite300,

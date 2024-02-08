@@ -2,8 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
-import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart'
-    hide LMNotificationHandler;
 import 'package:likeminds_feed_nova_sample/cred_screen.dart';
 import 'package:likeminds_feed_nova_sample/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -50,8 +48,6 @@ void main() async {
           debugPrintStack(stackTrace: stack);
           debugPrint("---------------------");
         })
-        // defines the package version being used
-        ..sampleAppVersion(feedPackageVersion)
         // whether or not to share logs with LM
         ..shareLogsWithLM(true)
         // defines the UI version being used
@@ -66,7 +62,7 @@ void main() async {
   await LMFeedCore.instance.initialize(
     // lmFeedClient: lmFeedClient,
     apiKey: "6b51af13-ce28-444b-a571-53a3fb125444",
-    domain: "suraasalearn://www.suraasa.com/community/",
+    domain: "feednova://www.feednova.com",
   );
   runApp(const MyApp());
 }
