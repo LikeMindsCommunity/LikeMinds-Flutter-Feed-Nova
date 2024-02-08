@@ -61,7 +61,7 @@ void main() async {
   // 4. Pass LMSDKCallback [OPTIONAL]
   await LMFeedCore.instance.initialize(
     // lmFeedClient: lmFeedClient,
-    apiKey: "6b51af13-ce28-444b-a571-53a3fb125444",
+    apiKey: "",
     domain: "feednova://www.feednova.com",
   );
   runApp(const MyApp());
