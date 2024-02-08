@@ -73,7 +73,7 @@ class UserLocalPreference {
       InitiateUserResponse response) async {
     if (response.success) {
       await UserLocalPreference.instance
-          .storeUserData(response.initiateUser!.user);
+          .storeUserData(response.user!);
     }
   }
 

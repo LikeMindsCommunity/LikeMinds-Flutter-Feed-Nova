@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
 import 'package:likeminds_feed_nova_fl/likeminds_feed_nova_fl.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({
+    super.key,
+    required this.profileWidget,
+    required this.userName,
+  });
+  final Widget profileWidget;
+  final String userName;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -17,7 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     // TODO Nova: Replace with your own User Object
-    user = UserLocalPreference.instance.fetchUserData();
+    // user = LMFeedCore.instance.userLocalPreference.fetchUserData();
   }
 
   @override
@@ -35,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => NewPostScreen(),
+                  builder: (context) => const LMFeedComposeScreen(),
                 ),
               );
             }),
@@ -58,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Center(
                 child: Text(
-                  user.name,
+                  widget.userName,
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -97,9 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          UserFeedWidget(
-            userId: user.userUniqueId,
-          ),
+          widget.profileWidget,
         ],
       ),
     );
