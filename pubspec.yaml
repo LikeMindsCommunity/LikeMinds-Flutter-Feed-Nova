@@ -1,6 +1,6 @@
 name: likeminds_feed_nova_fl
 description: A new Flutter package project.
-version: 0.8.4
+version: 1.0.0
 publish_to: none
 homepage: "https://likeminds.community/"
 
@@ -12,16 +12,14 @@ dependencies:
   flutter:
     sdk: flutter
   connectivity_plus: ^3.0.6
-  likeminds_feed_flutter_core:
-    # 1.0.0
-    path: ../likeminds_feed_flutter/packages/integration
+  likeminds_feed_flutter_core: 1.0.3
 
   likeminds_feed: 1.7.1
   media_kit_video: ^1.2.4
   media_kit: ^1.1.10
-  media_kit_libs_video:
-    ^1.0.4
-  timeago: ^3.6.1
+  media_kit_libs_video: ^1.0.4
+  timeago:
+    ^3.6.1
     # path: ../LikeMinds-Flutter-Feed-SDK
 
 dependency_override:
