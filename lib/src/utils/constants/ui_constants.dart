@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_flutter_core/likeminds_feed_core.dart';
+import 'package:likeminds_feed_nova_fl/src/utils/constants/assets_constants.dart';
 
 class ColorTheme {
   static const backgroundColor = Color.fromRGBO(24, 23, 25, 1);
@@ -13,6 +15,7 @@ class ColorTheme {
   static const pdfBlue = Color.fromRGBO(71, 111, 254, 1);
 
   static final novaTheme = ThemeData.from(
+    useMaterial3: false,
     colorScheme: ColorScheme.fromSeed(
       background: ColorTheme.backgroundColor,
       surface: ColorTheme.darkBlack500,
@@ -121,6 +124,95 @@ class ColorTheme {
     ),
   );
 }
+
+// should not use this theme
+LMFeedThemeData novaTheme1 = LMFeedThemeData.light(
+  backgroundColor: ColorTheme.backgroundColor,
+  primaryColor: ColorTheme.primaryColor,
+  container: ColorTheme.backgroundColor,
+  onContainer: ColorTheme.white,
+  commentStyle: LMFeedCommentStyle.basic().copyWith(
+    backgroundColor: ColorTheme.backgroundColor,
+    showProfilePicture: true,
+    actionsPadding: const EdgeInsets.only(
+      left: 44.0,
+    ),
+  ),
+  replyStyle: LMFeedCommentStyle.basic(isReply: true).copyWith(
+    backgroundColor: ColorTheme.backgroundColor,
+    showProfilePicture: true,
+    actionsPadding: const EdgeInsets.only(
+      left: 44.0,
+    ),
+    margin: const EdgeInsets.only(
+      left: 44.0,
+    ),
+  ),
+  composeScreenStyle: LMFeedComposeScreenStyle.basic().copyWith(
+    addImageIcon: LMFeedIcon(
+      type: LMFeedIconType.svg,
+      assetPath: kAssetGalleryIcon,
+      style: LMFeedIconStyle.basic().copyWith(
+        color: ColorTheme.novaTheme.colorScheme.primary,
+        boxPadding: 0,
+        size: 28,
+      ),
+    ),
+    addVideoIcon: LMFeedIcon(
+      type: LMFeedIconType.svg,
+      assetPath: kAssetVideoIcon,
+      style: LMFeedIconStyle.basic().copyWith(
+        color: ColorTheme.novaTheme.colorScheme.primary,
+        boxPadding: 0,
+        size: 28,
+      ),
+    ),
+    addDocumentIcon: LMFeedIcon(
+      type: LMFeedIconType.svg,
+      assetPath: kAssetDocPDFIcon,
+      style: LMFeedIconStyle.basic().copyWith(
+        color: ColorTheme.novaTheme.colorScheme.primary,
+        boxPadding: 0,
+        size: 28,
+      ),
+    ),
+  ),
+  footerStyle: LMFeedPostFooterStyle.basic().copyWith(
+    showSaveButton: false,
+    likeButtonStyle: LMFeedButtonStyle.basic().copyWith(
+      activeIcon: LMFeedIcon(
+        type: LMFeedIconType.svg,
+        assetPath: kAssetLikeFilledIcon,
+        style: LMFeedIconStyle(
+          size: 16,
+          color: ColorTheme.novaTheme.colorScheme.error,
+        ),
+      ),
+      icon: LMFeedIcon(
+        type: LMFeedIconType.svg,
+        assetPath: kAssetLikeIcon,
+        style: LMFeedIconStyle(
+            size: 16, color: ColorTheme.novaTheme.colorScheme.onPrimary),
+      ),
+    ),
+    commentButtonStyle: LMFeedButtonStyle.basic().copyWith(
+      icon: LMFeedIcon(
+        type: LMFeedIconType.svg,
+        assetPath: kAssetCommentIcon,
+        style: LMFeedIconStyle(
+            size: 20, color: ColorTheme.novaTheme.colorScheme.onPrimary),
+      ),
+    ),
+    shareButtonStyle: LMFeedButtonStyle.basic().copyWith(
+      icon: LMFeedIcon(
+        type: LMFeedIconType.svg,
+        assetPath: kAssetShareIcon,
+        style: LMFeedIconStyle(
+            size: 20, color: ColorTheme.novaTheme.colorScheme.onPrimary),
+      ),
+    ),
+  ),
+);
 
 const Color kPrimaryColor = Color(0xFF3B82F6);
 const Color primary500 = Color(0xFF4666F6);
